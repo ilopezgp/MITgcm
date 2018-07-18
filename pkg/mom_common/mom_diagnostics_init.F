@@ -303,6 +303,19 @@ C--   add diagnostics of tendencies from each terms
       CALL DIAGNOSTICS_ADDTOLIST( diagNum,
      I   diagName, diagCode, diagUnits, diagTitle, diagMate, myThid )
 
+      diagName  = 'Um_Dissv'
+      diagTitle = 'U momentum tendency from vertical Dissipation'
+      diagCode  = 'UUR     MR      '
+      diagMate  = diagNum + 2
+      CALL DIAGNOSTICS_ADDTOLIST( diagNum,
+     I   diagName, diagCode, diagUnits, diagTitle, diagMate, myThid )
+      diagName  = 'Vm_Dissv'
+      diagTitle = 'V momentum tendency from vertical Dissipation'
+      diagCode  = 'VVR     MR      '
+      diagMate  = diagNum
+      CALL DIAGNOSTICS_ADDTOLIST( diagNum,
+     I   diagName, diagCode, diagUnits, diagTitle, diagMate, myThid )
+
       diagName  = 'Um_Advec'
       diagTitle = 'U momentum tendency from Advection terms'
       diagCode  = 'UUR     MR      '
