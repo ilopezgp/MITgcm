@@ -342,6 +342,19 @@ C--   add diagnostics of tendencies from each terms
       CALL DIAGNOSTICS_ADDTOLIST( diagNum,
      I   diagName, diagCode, diagUnits, diagTitle, diagMate, myThid )
 
+      diagName  = 'Um_dEdx '
+      diagTitle = 'U momentum tendency from Barotropic Pressure grad'
+      diagCode  = 'UUR     MR      '
+      diagMate  = diagNum + 2
+      CALL DIAGNOSTICS_ADDTOLIST( diagNum,
+     I   diagName, diagCode, diagUnits, diagTitle, diagMate, myThid )
+      diagName  = 'Vm_dEdy '
+      diagTitle = 'V momentum tendency from Barotropic Pressure grad'
+      diagCode  = 'VVR     MR      '
+      diagMate  = diagNum
+      CALL DIAGNOSTICS_ADDTOLIST( diagNum,
+     I   diagName, diagCode, diagUnits, diagTitle, diagMate, myThid )
+
       diagName  = 'Um_Ext  '
       diagTitle = 'U momentum tendency from external forcing'
       diagCode  = 'UUR     MR      '

@@ -152,12 +152,12 @@ C     Update merid. velocity: add implicit pressure gradient tendency
        ENDDO
 
 #ifdef ALLOW_DIAGNOSTICS
-c      IF ( useDiagnostics ) THEN
-c       CALL DIAGNOSTICS_FILL( gU_dpx,
-c    &                         'UDIAG7  ', k, 1, 2, bi, bj, myThid )
-c       CALL DIAGNOSTICS_FILL( gV_dpy,
-c    &                         'UDIAG8  ', k, 1, 2, bi, bj, myThid )
-c      ENDIF
+       IF ( useDiagnostics ) THEN
+        CALL DIAGNOSTICS_FILL( gU_dpx,
+     &                         'Um_dEdx ', k, 1, 2, bi, bj, myThid )
+        CALL DIAGNOSTICS_FILL( gV_dpy,
+     &                         'Vm_dEdy ', k, 1, 2, bi, bj, myThid )
+       ENDIF
 #endif /* ALLOW_DIAGNOSTICS */
 
 C-    end of k loop
