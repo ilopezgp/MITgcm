@@ -167,6 +167,9 @@ C     uDudxFac, AhDudxFac, etc ... individual term parameters for switching term
       _RL  mtNHFacV
       _RL  sideMaskFac
       LOGICAL bottomDragTerms
+#ifdef ALLOW_DIAGNOSTICS
+      _RL diag (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
+#endif
 CEOP
 #ifdef MOM_BOUNDARY_CONSERVE
       COMMON / MOM_FLUXFORM_LOCAL / uBnd, vBnd
@@ -929,6 +932,19 @@ C--   Set du/dt & dv/dt on boundaries to zero
      &                               'Um_Advec',k,1,2,bi,bj,myThid)
         CALL DIAGNOSTICS_FILL(gV(1-OLx,1-OLy,k,bi,bj),
      &                               'Vm_Advec',k,1,2,bi,bj,myThid)
+          DO j=jMin,jMax
+            DO i=iMin,iMax
+              diag(i,j) = gU(i,j,k,bi,bj)*uVel(i,j,k,bi,bj)
+            ENDDO
+          ENDDO
+        CALL DIAGNOSTICS_FILL(diag,'UUm_Adve',k,1,2,bi,bj,myThid)
+          DO j=jMin,jMax
+            DO i=iMin,iMax
+              diag(i,j) = gV(i,j,k,bi,bj)*vVel(i,j,k,bi,bj)
+            ENDDO
+          ENDDO
+        CALL DIAGNOSTICS_FILL(diag,'VVm_Adve',k,1,2,bi,bj,myThid)
+
       ENDIF
 #endif /* ALLOW_DIAGNOSTICS */
 

@@ -110,6 +110,7 @@ C     !FUNCTIONS:
 #ifdef ALLOW_DIAGNOSTICS
       LOGICAL  DIAGNOSTICS_IS_ON
       EXTERNAL DIAGNOSTICS_IS_ON
+      _RL vf (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
 #endif
 
 C     !LOCAL VARIABLES:
@@ -246,6 +247,8 @@ CEOP
       IF ( useDiagnostics )
      &  dPhiHydDiagIsOn = DIAGNOSTICS_IS_ON( 'Um_dPHdx', myThid )
      &               .OR. DIAGNOSTICS_IS_ON( 'Vm_dPHdy', myThid )
+     &               .OR. DIAGNOSTICS_IS_ON( 'UUm_dPdx', myThid )
+     &               .OR. DIAGNOSTICS_IS_ON( 'VVm_dPdy', myThid )
 #endif
 
 C-- Call to routine for calculation of Eliassen-Palm-flux-forced
@@ -488,6 +491,21 @@ C--      Integrate hydrostatic balance for phiHyd with BC of phiHyd(z=0)=0
      &                           'Um_dPHdx', k, 1, 2, bi, bj, myThid )
            CALL DIAGNOSTICS_SCALE_FILL( dPhiHydY, tmpFac, 1,
      &                           'Vm_dPHdy', k, 1, 2, bi, bj, myThid )
+
+           DO j=jMin,jMax
+             DO i=iMin,iMax
+               vf(i,j) = uVel(i,j,k,bi,bj)*dPhiHydX(i,j)
+             ENDDO
+           ENDDO
+           CALL DIAGNOSTICS_SCALE_FILL( vf, tmpFac, 1,
+     &                           'UUm_dPdx', k, 1, 2, bi, bj, myThid )
+           DO j=jMin,jMax
+             DO i=iMin,iMax
+               vf(i,j) = vVel(i,j,k,bi,bj)*dPhiHydY(i,j)
+             ENDDO
+           ENDDO
+           CALL DIAGNOSTICS_SCALE_FILL( vf, tmpFac, 1,
+     &                           'VVm_dPdy', k, 1, 2, bi, bj, myThid )
          ENDIF
 #endif /* ALLOW_DIAGNOSTICS */
 

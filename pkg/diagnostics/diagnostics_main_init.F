@@ -847,6 +847,22 @@ c     diagTitle = 'Free-Surface r-Position (Pressure, Height) (Pa,m)'
       CALL DIAGNOSTICS_ADDTOLIST( diagNum,
      I   diagName, diagCode, diagUnits, diagTitle, diagMate, myThid )
 
+      diagName  = 'UAB_gU  '
+      diagTitle = 'U*U momentum tendency from Adams-Bashforth'
+      diagUnits = 'm^2/s^3         '
+      diagCode  = 'UUR     MR      '
+      diagMate  = diagNum + 2
+      CALL DIAGNOSTICS_ADDTOLIST( diagNum,
+     I   diagName, diagCode, diagUnits, diagTitle, diagMate, myThid )
+
+      diagName  = 'VAB_gV  '
+      diagTitle = 'V*V momentum tendency from Adams-Bashforth'
+      diagUnits = 'm^2/s^3         '
+      diagCode  = 'VVR     MR      '
+      diagMate  = diagNum
+      CALL DIAGNOSTICS_ADDTOLIST( diagNum,
+     I   diagName, diagCode, diagUnits, diagTitle, diagMate, myThid )
+
 #ifdef ALLOW_NONHYDROSTATIC
       diagName  = 'AB_gW   '
       diagTitle = 'W momentum tendency from Adams-Bashforth'

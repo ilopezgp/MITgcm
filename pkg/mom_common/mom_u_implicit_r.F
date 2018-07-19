@@ -61,6 +61,7 @@ c     _RL e5d(1-OLx:sNx+OLx,1-OLy:sNy+OLy,Nr)
       EXTERNAL    DIAGNOSTICS_IS_ON
       _RL vf (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
       _RL vf1 (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
+      _RL vf2 (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
       _RL vf_d (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
 #endif
 CEOP
@@ -281,7 +282,8 @@ C--   Solve tri-diagonal system :
 C--   Diagnostics of vertical viscous flux:
       IF ( useDiagnostics .AND. implicitViscosity ) THEN
         IF ( DIAGNOSTICS_IS_ON('VISrI_Um',myThid) 
-     &     .OR. DIAGNOSTICS_IS_ON('Um_Dissv',myThid) ) THEN
+     &     .OR. DIAGNOSTICS_IS_ON('Um_Disv ',myThid)
+     &     .OR. DIAGNOSTICS_IS_ON('UUm_Disv',myThid) ) THEN
          DO k= 1,Nr
           IF ( k.EQ.1 ) THEN
 C-  Note: Needs to call DIAGNOSTICS_FILL at level k=1 even if array == 0
@@ -303,9 +305,11 @@ C         otherwise counter is not incremented !!
                vf_d(i,j) = (vf(i,j) - vf1(i,j))
      &            /(rAw(i,j,bi,bj)*drF(k-1)*_hFacW(i,j,k-1,bi,bj))
                vf1(i,j) = vf(i,j)
+               vf2(i,j) = vf_d(i,j)*uVel(i,j,k-1,bi,bj)
              ENDDO
             ENDDO
-          CALL DIAGNOSTICS_FILL(vf_d,'Um_Dissv', k-1,1, 2,bi,bj, myThid)
+          CALL DIAGNOSTICS_FILL(vf_d,'Um_Disv ', k-1,1, 2,bi,bj, myThid)
+          CALL DIAGNOSTICS_FILL(vf2,'UUm_Disv', k-1,1, 2,bi,bj, myThid)
           ENDIF
           CALL DIAGNOSTICS_FILL(vf,'VISrI_Um', k,1, 2,bi,bj, myThid)
          ENDDO

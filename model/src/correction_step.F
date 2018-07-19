@@ -55,6 +55,11 @@ C     gV_dpy       :: implicit part of pressure gradient tendency
       _RL     psFac, nhFac
       _RL     gU_dpx(1-OLx:sNx+OLx,1-OLy:sNy+OLy)
       _RL     gV_dpy(1-OLx:sNx+OLx,1-OLy:sNy+OLy)
+#ifdef ALLOW_DIAGNOSTICS
+      LOGICAL     DIAGNOSTICS_IS_ON
+      EXTERNAL    DIAGNOSTICS_IS_ON
+      _RL vf (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
+#endif
 CEOP
 
 C--   Loop over all layers, top to bottom
@@ -126,6 +131,29 @@ C     Pressure gradient tendency (merid mom): Implicit part
 #ifdef ALLOW_SOLVE4_PS_AND_DRAG
        ENDIF
 #endif /* ALLOW_SOLVE4_PS_AND_DRAG */
+
+#ifdef ALLOW_DIAGNOSTICS
+      IF ( useDiagnostics .AND. 
+     &    DIAGNOSTICS_IS_ON('UUm_dEdx',myThid) ) THEN
+       DO j=jMin,jMax
+        DO i=iMin,iMax
+          vf(i,j) = uVel(i,j,k,bi,bj)*gU_dpx(i,j)
+        ENDDO
+       ENDDO
+       CALL DIAGNOSTICS_FILL(vf,'UUm_dEdx', k ,1, 2,bi,bj, myThid)
+      ENDIF
+
+      IF ( useDiagnostics .AND. 
+     &    DIAGNOSTICS_IS_ON('VVm_dEdy',myThid) ) THEN
+       DO j=jMin,jMax
+        DO i=iMin,iMax
+          vf(i,j) = vVel(i,j,k,bi,bj)*gV_dpy(i,j)
+        ENDDO
+       ENDDO
+       CALL DIAGNOSTICS_FILL(vf,'VVm_dEdy', k ,1, 2,bi,bj, myThid)
+      ENDIF
+
+#endif
 
 C     Update zonal velocity: add implicit pressure gradient tendency
        DO j=jMin,jMax

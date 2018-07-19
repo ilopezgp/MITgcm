@@ -72,6 +72,11 @@ C     gv_AB    :: tendency increment from Adams-Bashforth, v component
       _RL     guCor(1-OLx:sNx+OLx,1-OLy:sNy+OLy)
       _RL     gvCor(1-OLx:sNx+OLx,1-OLy:sNy+OLy)
 #endif
+#ifdef ALLOW_DIAGNOSTICS
+      LOGICAL     DIAGNOSTICS_IS_ON
+      EXTERNAL    DIAGNOSTICS_IS_ON
+      _RL vf (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
+#endif
 CEOP
 
 C-- explicit part of the surface potential gradient is added in this S/R
@@ -187,6 +192,23 @@ C     and save gU,gV_[n] into guNm1,gvNm1 for the next time step.
       IF ( useDiagnostics ) THEN
         CALL DIAGNOSTICS_FILL(gu_AB,'AB_gU   ',k,1,2,bi,bj,myThid)
         CALL DIAGNOSTICS_FILL(gv_AB,'AB_gV   ',k,1,2,bi,bj,myThid)
+        IF ( DIAGNOSTICS_IS_ON('UAB_gU  ',myThid) ) THEN
+          DO j=jMin,jMax
+            DO i=iMin,iMax
+              vf(i,j) = gu_AB(i,j)*uVel(i,j,k,bi,bj)
+            ENDDO
+          ENDDO
+        CALL DIAGNOSTICS_FILL(vf,'UAB_gU  ',k,1,2,bi,bj,myThid)
+        ENDIF
+        IF ( DIAGNOSTICS_IS_ON('VAB_gV  ',myThid) ) THEN
+          DO j=jMin,jMax
+            DO i=iMin,iMax
+              vf(i,j) = gv_AB(i,j)*vVel(i,j,k,bi,bj)
+            ENDDO
+          ENDDO
+        CALL DIAGNOSTICS_FILL(vf,'VAB_gV  ',k,1,2,bi,bj,myThid)
+        ENDIF
+
       ENDIF
 #endif /* ALLOW_DIAGNOSTICS */
 
@@ -379,15 +401,55 @@ C     Step forward meridional velocity (store in Gv)
       IF ( momViscosity .AND. useDiagnostics ) THEN
         CALL DIAGNOSTICS_FILL( guDissip,'Um_Diss ',k,1,2,bi,bj,myThid )
         CALL DIAGNOSTICS_FILL( gvDissip,'Vm_Diss ',k,1,2,bi,bj,myThid )
+        DO j=jMin,jMax
+          DO i=iMin,iMax
+            vf(i,j) = guDissip(i,j)*uVel(i,j,k,bi,bj)
+          ENDDO
+        ENDDO
+        CALL DIAGNOSTICS_FILL(vf,'UUm_Diss',k,1,2,bi,bj,myThid)
+        DO j=jMin,jMax
+          DO i=iMin,iMax
+            vf(i,j) = gvDissip(i,j)*vVel(i,j,k,bi,bj)
+          ENDDO
+        ENDDO
+        CALL DIAGNOSTICS_FILL(vf,'VVm_Diss',k,1,2,bi,bj,myThid)
       ENDIF
+
       IF ( momForcing .AND. useDiagnostics ) THEN
         CALL DIAGNOSTICS_FILL( guExt,'Um_Ext  ',k,1,2,bi,bj,myThid )
         CALL DIAGNOSTICS_FILL( gvExt,'Vm_Ext  ',k,1,2,bi,bj,myThid )
+        DO j=jMin,jMax
+          DO i=iMin,iMax
+            vf(i,j) = guExt(i,j)*uVel(i,j,k,bi,bj)
+          ENDDO
+        ENDDO
+        CALL DIAGNOSTICS_FILL(vf,'UUm_Ext ',k,1,2,bi,bj,myThid)
+        DO j=jMin,jMax
+          DO i=iMin,iMax
+            vf(i,j) = gvExt(i,j)*vVel(i,j,k,bi,bj)
+          ENDDO
+        ENDDO
+        CALL DIAGNOSTICS_FILL(vf,'VVm_Ext ',k,1,2,bi,bj,myThid)
       ENDIF
 #ifdef ALLOW_CD_CODE
       IF ( useCDscheme .AND. useDiagnostics ) THEN
         CALL DIAGNOSTICS_FILL( guCor,'Um_Cori ',k,1,2,bi,bj,myThid )
         CALL DIAGNOSTICS_FILL( gvCor,'Vm_Cori ',k,1,2,bi,bj,myThid )
+
+        DO j=jMin,jMax
+          DO i=iMin,iMax
+            vf(i,j) = guCor(i,j)*uVel(i,j,k,bi,bj)
+          ENDDO
+        ENDDO
+        CALL DIAGNOSTICS_FILL(vf,'UUm_Cori',k,1,2,bi,bj,myThid)
+        DO j=jMin,jMax
+          DO i=iMin,iMax
+            vf(i,j) = gvCor(i,j)*vVel(i,j,k,bi,bj)
+          ENDDO
+        ENDDO
+        CALL DIAGNOSTICS_FILL(vf,'VVm_Cori',k,1,2,bi,bj,myThid)
+      ENDIF
+
       ENDIF
 #endif /* ALLOW_CD_CODE */
 #endif /* ALLOW_DIAGNOSTICS */
