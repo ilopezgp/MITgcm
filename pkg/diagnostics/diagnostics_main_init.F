@@ -754,6 +754,22 @@ c     diagTitle = 'Free-Surface r-Position (Pressure, Height) (Pa,m)'
       CALL DIAGNOSTICS_ADDTOLIST( diagNum,
      I   diagName, diagCode, diagUnits, diagTitle, diagMate, myThid )
 
+      diagName  = 'UTOTUTEN'
+      diagTitle = 'U*Tendency of Zonal Component of Velocity'
+      diagUnits = 'm^2/s^2/day         '
+      diagCode  = 'UUR     MR      '
+      diagMate  = diagNum + 2
+      CALL DIAGNOSTICS_ADDTOLIST( diagNum,
+     I   diagName, diagCode, diagUnits, diagTitle, diagMate, myThid )
+
+      diagName  = 'VTOTVTEN'
+      diagTitle = 'V*Tendency of Meridional Component of Velocity'
+      diagUnits = 'm^2/s^2/day         '
+      diagCode  = 'VVR     MR      '
+      diagMate  = diagNum
+      CALL DIAGNOSTICS_ADDTOLIST( diagNum,
+     I   diagName, diagCode, diagUnits, diagTitle, diagMate, myThid )
+
       diagName  = 'TOTTTEND'
       diagTitle = 'Tendency of Potential Temperature'
       diagUnits = DIAGS_MK_UNITS( tUnit4c//'/day', myThid )

@@ -31,6 +31,7 @@ C     == Global variables ==
 #ifdef ALLOW_NONHYDROSTATIC
 #include "NH_VARS.h"
 #endif
+#include "DIAGNOSTICS_EVAR.h"
 
 C     !INPUT/OUTPUT PARAMETERS:
 C     == Routine Arguments ==
@@ -195,18 +196,16 @@ C     and save gU,gV_[n] into guNm1,gvNm1 for the next time step.
         IF ( DIAGNOSTICS_IS_ON('UAB_gU  ',myThid) ) THEN
           DO j=jMin,jMax
             DO i=iMin,iMax
-              vf(i,j) = gu_AB(i,j)*uVel(i,j,k,bi,bj)
+              u_ab(i,j,k,bi,bj) = gu_AB(i,j)
             ENDDO
           ENDDO
-        CALL DIAGNOSTICS_FILL(vf,'UAB_gU  ',k,1,2,bi,bj,myThid)
         ENDIF
         IF ( DIAGNOSTICS_IS_ON('VAB_gV  ',myThid) ) THEN
           DO j=jMin,jMax
             DO i=iMin,iMax
-              vf(i,j) = gv_AB(i,j)*vVel(i,j,k,bi,bj)
+              v_ab(i,j,k,bi,bj) = gv_AB(i,j)
             ENDDO
           ENDDO
-        CALL DIAGNOSTICS_FILL(vf,'VAB_gV  ',k,1,2,bi,bj,myThid)
         ENDIF
 
       ENDIF
@@ -403,16 +402,14 @@ C     Step forward meridional velocity (store in Gv)
         CALL DIAGNOSTICS_FILL( gvDissip,'Vm_Diss ',k,1,2,bi,bj,myThid )
         DO j=jMin,jMax
           DO i=iMin,iMax
-            vf(i,j) = guDissip(i,j)*uVel(i,j,k,bi,bj)
+            u_dissh(i,j,k,bi,bj) = guDissip(i,j)
           ENDDO
         ENDDO
-        CALL DIAGNOSTICS_FILL(vf,'UUm_Diss',k,1,2,bi,bj,myThid)
         DO j=jMin,jMax
           DO i=iMin,iMax
-            vf(i,j) = gvDissip(i,j)*vVel(i,j,k,bi,bj)
+            v_dissh(i,j,k,bi,bj) = gvDissip(i,j)
           ENDDO
         ENDDO
-        CALL DIAGNOSTICS_FILL(vf,'VVm_Diss',k,1,2,bi,bj,myThid)
       ENDIF
 
       IF ( momForcing .AND. useDiagnostics ) THEN
@@ -420,16 +417,14 @@ C     Step forward meridional velocity (store in Gv)
         CALL DIAGNOSTICS_FILL( gvExt,'Vm_Ext  ',k,1,2,bi,bj,myThid )
         DO j=jMin,jMax
           DO i=iMin,iMax
-            vf(i,j) = guExt(i,j)*uVel(i,j,k,bi,bj)
+            u_ext(i,j,k,bi,bj) = guExt(i,j)
           ENDDO
         ENDDO
-        CALL DIAGNOSTICS_FILL(vf,'UUm_Ext ',k,1,2,bi,bj,myThid)
         DO j=jMin,jMax
           DO i=iMin,iMax
-            vf(i,j) = gvExt(i,j)*vVel(i,j,k,bi,bj)
+            v_ext(i,j,k,bi,bj) = gvExt(i,j)
           ENDDO
         ENDDO
-        CALL DIAGNOSTICS_FILL(vf,'VVm_Ext ',k,1,2,bi,bj,myThid)
       ENDIF
 #ifdef ALLOW_CD_CODE
       IF ( useCDscheme .AND. useDiagnostics ) THEN
@@ -438,16 +433,14 @@ C     Step forward meridional velocity (store in Gv)
 
         DO j=jMin,jMax
           DO i=iMin,iMax
-            vf(i,j) = guCor(i,j)*uVel(i,j,k,bi,bj)
+            u_cori(i,j) = guCor(i,j)
           ENDDO
         ENDDO
-        CALL DIAGNOSTICS_FILL(vf,'UUm_Cori',k,1,2,bi,bj,myThid)
         DO j=jMin,jMax
           DO i=iMin,iMax
-            vf(i,j) = gvCor(i,j)*vVel(i,j,k,bi,bj)
+            v_cori(i,j) = gvCor(i,j)
           ENDDO
         ENDDO
-        CALL DIAGNOSTICS_FILL(vf,'VVm_Cori',k,1,2,bi,bj,myThid)
       ENDIF
 
       ENDIF

@@ -60,6 +60,7 @@ C     == Global variables ===
 #  include "MOM_FLUXFORM.h"
 # endif
 #endif /* ALLOW_AUTODIFF */
+#include "DIAGNOSTICS_EVAR.h"
 
 C     !CALLING SEQUENCE:
 C     DYNAMICS()
@@ -494,18 +495,14 @@ C--      Integrate hydrostatic balance for phiHyd with BC of phiHyd(z=0)=0
 
            DO j=jMin,jMax
              DO i=iMin,iMax
-               vf(i,j) = uVel(i,j,k,bi,bj)*dPhiHydX(i,j)
+               u_dphdx(i,j,k,bi,bj) = dPhiHydX(i,j)
              ENDDO
            ENDDO
-           CALL DIAGNOSTICS_SCALE_FILL( vf, tmpFac, 1,
-     &                           'UUm_dPdx', k, 1, 2, bi, bj, myThid )
            DO j=jMin,jMax
              DO i=iMin,iMax
-               vf(i,j) = vVel(i,j,k,bi,bj)*dPhiHydY(i,j)
+               v_dphdy(i,j,k,bi,bj) = dPhiHydY(i,j)
              ENDDO
            ENDDO
-           CALL DIAGNOSTICS_SCALE_FILL( vf, tmpFac, 1,
-     &                           'VVm_dPdy', k, 1, 2, bi, bj, myThid )
          ENDIF
 #endif /* ALLOW_DIAGNOSTICS */
 

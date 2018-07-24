@@ -23,6 +23,7 @@ C     == Global data ==
 #include "PARAMS.h"
 #include "GRID.h"
 #include "DYNVARS.h"
+#include "DIAGNOSTICS_EVAR.h"
 
 C     !INPUT/OUTPUT PARAMETERS:
 C     == Routine Arguments ==
@@ -305,11 +306,10 @@ C         otherwise counter is not incremented !!
                vf_d(i,j) = (vf(i,j) - vf1(i,j))
      &            /(rAw(i,j,bi,bj)*drF(k-1)*_hFacW(i,j,k-1,bi,bj))
                vf1(i,j) = vf(i,j)
-               vf2(i,j) = vf_d(i,j)*uVel(i,j,k-1,bi,bj)
+               u_dissv(i,j,k-1,bi,bj) = vf_d(i,j)
              ENDDO
             ENDDO
           CALL DIAGNOSTICS_FILL(vf_d,'Um_Disv ', k-1,1, 2,bi,bj, myThid)
-          CALL DIAGNOSTICS_FILL(vf2,'UUm_Disv', k-1,1, 2,bi,bj, myThid)
           ENDIF
           CALL DIAGNOSTICS_FILL(vf,'VISrI_Um', k,1, 2,bi,bj, myThid)
          ENDDO
