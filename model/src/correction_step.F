@@ -179,146 +179,190 @@ C     Update merid. velocity: add implicit pressure gradient tendency
 
 C -- energy diagnostics
 
-      IF ( useDiagnostics .AND. 
+       IF ( useDiagnostics .AND. 
      &    DIAGNOSTICS_IS_ON('UUm_dEdx',myThid) ) THEN
-       DO j=jMin,jMax
-        DO i=iMin,iMax
-          psitmp(i,j) = 0.5*(uvel0(i,j)+uVel(i,j,k,bi,bj))*gU_dpx(i,j)
-        ENDDO
-       ENDDO
-       CALL DIAGNOSTICS_FILL(psitmp,'UUm_dEdx', k ,1, 2,bi,bj, myThid)
-      ENDIF
+         DO j=jMin,jMax
+           DO i=iMin,iMax
+            psitmp(i,j) = 0.5*(uvel0(i,j)+uVel(i,j,k,bi,bj))
+     &          *gU_dpx(i,j)
+           ENDDO
+         ENDDO
+         CALL DIAGNOSTICS_FILL(psitmp,'UUm_dEdx', k ,1, 2,bi,bj, myThid)
+       ENDIF
 
-      IF ( useDiagnostics .AND. 
+       IF ( useDiagnostics .AND. 
      &    DIAGNOSTICS_IS_ON('VVm_dEdy',myThid) ) THEN
-       DO j=jMin,jMax
-        DO i=iMin,iMax
-          psitmp(i,j) = 0.5*(vvel0(i,j)+vVel(i,j,k,bi,bj))*gV_dpy(i,j)
-        ENDDO
-       ENDDO
-       CALL DIAGNOSTICS_FILL(psitmp,'VVm_dEdy', k ,1, 2,bi,bj, myThid)
-      ENDIF
+         DO j=jMin,jMax
+           DO i=iMin,iMax
+             psitmp(i,j) = 0.5*(vvel0(i,j)+vVel(i,j,k,bi,bj))
+     &          *gV_dpy(i,j)
+           ENDDO
+         ENDDO
+         CALL DIAGNOSTICS_FILL(psitmp,'VVm_dEdy', k ,1, 2,bi,bj, myThid)
+       ENDIF
 
 
-       DO j=jMin,jMax
-        DO i=iMin,iMax
-          psitmp(i,j) = 0.5*(uvel0(i,j)+uVel(i,j,k,bi,bj))
-     &       *u_dissh(i,j,k,bi,bj)
-        ENDDO
-       ENDDO
-       CALL DIAGNOSTICS_FILL(psitmp,'UUm_Diss',k,1,2,bi,bj,myThid)
+       IF ( useDiagnostics .AND. 
+     &    DIAGNOSTICS_IS_ON('UUm_Diss',myThid) ) THEN
+         DO j=jMin,jMax
+           DO i=iMin,iMax
+             psitmp(i,j) = 0.5*(uvel0(i,j)+uVel(i,j,k,bi,bj))
+     &          *u_dissh(i,j,k,bi,bj)
+           ENDDO
+         ENDDO
+         CALL DIAGNOSTICS_FILL(psitmp,'UUm_Diss',k,1,2,bi,bj,myThid)
+       ENDIF
        
-       DO j=jMin,jMax
-        DO i=iMin,iMax
-          psitmp(i,j) = 0.5*(vvel0(i,j)+vVel(i,j,k,bi,bj))
-     &       *v_dissh(i,j,k,bi,bj)
-        ENDDO
-       ENDDO
-       CALL DIAGNOSTICS_FILL(psitmp,'VVm_Diss',k,1,2,bi,bj,myThid)
+       IF ( useDiagnostics .AND. 
+     &    DIAGNOSTICS_IS_ON('VVm_Diss',myThid) ) THEN
+         DO j=jMin,jMax
+           DO i=iMin,iMax
+             psitmp(i,j) = 0.5*(vvel0(i,j)+vVel(i,j,k,bi,bj))
+     &          *v_dissh(i,j,k,bi,bj)
+           ENDDO
+         ENDDO
+         CALL DIAGNOSTICS_FILL(psitmp,'VVm_Diss',k,1,2,bi,bj,myThid)
+       ENDIF
 
-       DO j=jMin,jMax
-        DO i=iMin,iMax
-          psitmp(i,j) = 0.5*(uvel0(i,j)+uVel(i,j,k,bi,bj))
-     &       *u_ext(i,j,k,bi,bj)
-        ENDDO
-       ENDDO
-        CALL DIAGNOSTICS_FILL(psitmp,'UUm_Ext ',k,1,2,bi,bj,myThid)
+       IF ( useDiagnostics .AND. 
+     &    DIAGNOSTICS_IS_ON('UUm_Ext ',myThid) ) THEN
+         DO j=jMin,jMax
+           DO i=iMin,iMax
+             psitmp(i,j) = 0.5*(uvel0(i,j)+uVel(i,j,k,bi,bj))
+     &          *u_ext(i,j,k,bi,bj)
+           ENDDO
+         ENDDO
+         CALL DIAGNOSTICS_FILL(psitmp,'UUm_Ext ',k,1,2,bi,bj,myThid)
+       ENDIF
        
-       DO j=jMin,jMax
-        DO i=iMin,iMax
-          psitmp(i,j) = 0.5*(vvel0(i,j)+vVel(i,j,k,bi,bj))
-     &       *v_ext(i,j,k,bi,bj)
-        ENDDO
-       ENDDO
-        CALL DIAGNOSTICS_FILL(psitmp,'VVm_Ext ',k,1,2,bi,bj,myThid)
+       IF ( useDiagnostics .AND. 
+     &    DIAGNOSTICS_IS_ON('VVm_Ext ',myThid) ) THEN
+         DO j=jMin,jMax
+           DO i=iMin,iMax
+             psitmp(i,j) = 0.5*(vvel0(i,j)+vVel(i,j,k,bi,bj))
+     &          *v_ext(i,j,k,bi,bj)
+           ENDDO
+         ENDDO
+         CALL DIAGNOSTICS_FILL(psitmp,'VVm_Ext ',k,1,2,bi,bj,myThid)
+       ENDIF
 
 
-       DO j=jMin,jMax
-        DO i=iMin,iMax
-          psitmp(i,j) = 0.5*(uvel0(i,j)+uVel(i,j,k,bi,bj))
-     &       *u_cori(i,j,k,bi,bj)
-        ENDDO
-       ENDDO
-        CALL DIAGNOSTICS_FILL(psitmp,'UUm_Cori',k,1,2,bi,bj,myThid)
+       IF ( useDiagnostics .AND. 
+     &    DIAGNOSTICS_IS_ON('UUm_Cori',myThid) ) THEN
+         DO j=jMin,jMax
+           DO i=iMin,iMax
+             psitmp(i,j) = 0.5*(uvel0(i,j)+uVel(i,j,k,bi,bj))
+     &          *u_cori(i,j,k,bi,bj)
+           ENDDO
+         ENDDO
+         CALL DIAGNOSTICS_FILL(psitmp,'UUm_Cori',k,1,2,bi,bj,myThid)
+       ENDIF
        
-       DO j=jMin,jMax
-        DO i=iMin,iMax
-          psitmp(i,j) = 0.5*(vvel0(i,j)+vVel(i,j,k,bi,bj))
-     &       *v_cori(i,j,k,bi,bj)
-        ENDDO
-       ENDDO
-        CALL DIAGNOSTICS_FILL(psitmp,'VVm_Cori',k,1,2,bi,bj,myThid)
+       IF ( useDiagnostics .AND. 
+     &    DIAGNOSTICS_IS_ON('VVm_Cori',myThid) ) THEN
+         DO j=jMin,jMax
+           DO i=iMin,iMax
+             psitmp(i,j) = 0.5*(vvel0(i,j)+vVel(i,j,k,bi,bj))
+     &          *v_cori(i,j,k,bi,bj)
+           ENDDO
+         ENDDO
+         CALL DIAGNOSTICS_FILL(psitmp,'VVm_Cori',k,1,2,bi,bj,myThid)
+       ENDIF
 
 
-       DO j=jMin,jMax
-        DO i=iMin,iMax
-          psitmp(i,j) = 0.5*(uvel0(i,j)+uVel(i,j,k,bi,bj))
-     &       *u_advec(i,j,k,bi,bj)
-        ENDDO
-       ENDDO
-        CALL DIAGNOSTICS_FILL(psitmp,'UUm_Adve',k,1,2,bi,bj,myThid)
+       IF ( useDiagnostics .AND. 
+     &    DIAGNOSTICS_IS_ON('UUm_Adve',myThid) ) THEN
+         DO j=jMin,jMax
+           DO i=iMin,iMax
+             psitmp(i,j) = 0.5*(uvel0(i,j)+uVel(i,j,k,bi,bj))
+     &          *u_advec(i,j,k,bi,bj)
+           ENDDO
+         ENDDO
+         CALL DIAGNOSTICS_FILL(psitmp,'UUm_Adve',k,1,2,bi,bj,myThid)
+       ENDIF
        
-       DO j=jMin,jMax
-        DO i=iMin,iMax
-          psitmp(i,j) = 0.5*(vvel0(i,j)+vVel(i,j,k,bi,bj))
-     &       *v_advec(i,j,k,bi,bj)
-        ENDDO
-       ENDDO
-       CALL DIAGNOSTICS_FILL(psitmp,'VVm_Adve',k,1,2,bi,bj,myThid)
+       IF ( useDiagnostics .AND. 
+     &    DIAGNOSTICS_IS_ON('VVm_Adve',myThid) ) THEN
+         DO j=jMin,jMax
+           DO i=iMin,iMax
+             psitmp(i,j) = 0.5*(vvel0(i,j)+vVel(i,j,k,bi,bj))
+     &          *v_advec(i,j,k,bi,bj)
+           ENDDO
+         ENDDO
+         CALL DIAGNOSTICS_FILL(psitmp,'VVm_Adve',k,1,2,bi,bj,myThid)
+       ENDIF
 
-       DO j=jMin,jMax
-        DO i=iMin,iMax
-          psitmp(i,j) = 0.5*(uvel0(i,j)+uVel(i,j,k,bi,bj))
-     &       *u_dissv(i,j,k,bi,bj)
-        ENDDO
-       ENDDO
-       CALL DIAGNOSTICS_FILL(psitmp,'UUm_Disv', k,1, 2,bi,bj, myThid)
+       IF ( useDiagnostics .AND. 
+     &    DIAGNOSTICS_IS_ON('UUm_Disv',myThid) ) THEN
+         DO j=jMin,jMax
+           DO i=iMin,iMax
+             psitmp(i,j) = 0.5*(uvel0(i,j)+uVel(i,j,k,bi,bj))
+     &          *u_dissv(i,j,k,bi,bj)
+           ENDDO
+         ENDDO
+         CALL DIAGNOSTICS_FILL(psitmp,'UUm_Disv', k,1, 2,bi,bj, myThid)
+       ENDIF
        
-       DO j=jMin,jMax
-        DO i=iMin,iMax
-          psitmp(i,j) = 0.5*(vvel0(i,j)+vVel(i,j,k,bi,bj))
-     &       *v_dissv(i,j,k,bi,bj)
-        ENDDO
-       ENDDO
-       CALL DIAGNOSTICS_FILL(psitmp,'VVm_Disv', k,1, 2,bi,bj, myThid)
+       IF ( useDiagnostics .AND. 
+     &    DIAGNOSTICS_IS_ON('VVm_Disv',myThid) ) THEN
+         DO j=jMin,jMax
+           DO i=iMin,iMax
+             psitmp(i,j) = 0.5*(vvel0(i,j)+vVel(i,j,k,bi,bj))
+     &          *v_dissv(i,j,k,bi,bj)
+           ENDDO
+         ENDDO
+         CALL DIAGNOSTICS_FILL(psitmp,'VVm_Disv', k,1, 2,bi,bj, myThid)
+       ENDIF
 
-       tmpFac = -1. _d 0
-       DO j=jMin,jMax
-        DO i=iMin,iMax
-          psitmp(i,j) = 0.5*(uvel0(i,j)+uVel(i,j,k,bi,bj))
-     &       *u_dphdx(i,j,k,bi,bj)
-        ENDDO
-       ENDDO
-       CALL DIAGNOSTICS_SCALE_FILL( psitmp, tmpFac, 1,
+       IF ( useDiagnostics .AND. 
+     &    DIAGNOSTICS_IS_ON('UUm_dPdx',myThid) ) THEN
+         tmpFac = -1. _d 0
+         DO j=jMin,jMax
+           DO i=iMin,iMax
+             psitmp(i,j) = 0.5*(uvel0(i,j)+uVel(i,j,k,bi,bj))
+     &          *u_dphdx(i,j,k,bi,bj)
+           ENDDO
+         ENDDO
+         CALL DIAGNOSTICS_SCALE_FILL( psitmp, tmpFac, 1,
      &      'UUm_dPdx', k, 1, 2, bi, bj, myThid )
+       ENDIF
        
-       DO j=jMin,jMax
-        DO i=iMin,iMax
-          psitmp(i,j) = 0.5*(vvel0(i,j)+vVel(i,j,k,bi,bj))
-     &       *v_dphdy(i,j,k,bi,bj)
-        ENDDO
-       ENDDO
-           CALL DIAGNOSTICS_SCALE_FILL( psitmp, tmpFac, 1,
-     &    'VVm_dPdy', k, 1, 2, bi, bj, myThid )
+       IF ( useDiagnostics .AND. 
+     &    DIAGNOSTICS_IS_ON('VVm_dPdy',myThid) ) THEN
+         tmpFac = -1. _d 0
+         DO j=jMin,jMax
+           DO i=iMin,iMax
+             psitmp(i,j) = 0.5*(vvel0(i,j)+vVel(i,j,k,bi,bj))
+     &          *v_dphdy(i,j,k,bi,bj)
+           ENDDO
+         ENDDO
+         CALL DIAGNOSTICS_SCALE_FILL( psitmp, tmpFac, 1,
+     &      'VVm_dPdy', k, 1, 2, bi, bj, myThid )
+       ENDIF
 
 
-       DO j=jMin,jMax
-        DO i=iMin,iMax
-          psitmp(i,j) = 0.5*(uvel0(i,j)+uVel(i,j,k,bi,bj))
-     &       *u_ab(i,j,k,bi,bj)
-        ENDDO
-       ENDDO
-        CALL DIAGNOSTICS_FILL(psitmp,'UAB_gU  ',k,1,2,bi,bj,myThid)
+       IF ( useDiagnostics .AND. 
+     &    DIAGNOSTICS_IS_ON('UAB_gU  ',myThid) ) THEN
+         DO j=jMin,jMax
+           DO i=iMin,iMax
+             psitmp(i,j) = 0.5*(uvel0(i,j)+uVel(i,j,k,bi,bj))
+     &          *u_ab(i,j,k,bi,bj)
+           ENDDO
+         ENDDO
+         CALL DIAGNOSTICS_FILL(psitmp,'UAB_gU  ',k,1,2,bi,bj,myThid)
+       ENDIF
        
-       DO j=jMin,jMax
-        DO i=iMin,iMax
-          psitmp(i,j) = 0.5*(vvel0(i,j)+vVel(i,j,k,bi,bj))
-     &       *v_ab(i,j,k,bi,bj)
-        ENDDO
-       ENDDO
-        CALL DIAGNOSTICS_FILL(psitmp,'VAB_gV  ',k,1,2,bi,bj,myThid)
+       IF ( useDiagnostics .AND. 
+     &    DIAGNOSTICS_IS_ON('VAB_gV  ',myThid) ) THEN
+         DO j=jMin,jMax
+           DO i=iMin,iMax
+             psitmp(i,j) = 0.5*(vvel0(i,j)+vVel(i,j,k,bi,bj))
+     &          *v_ab(i,j,k,bi,bj)
+           ENDDO
+         ENDDO
+         CALL DIAGNOSTICS_FILL(psitmp,'VAB_gV  ',k,1,2,bi,bj,myThid)
 
-
+       ENDIF
 
 
 
