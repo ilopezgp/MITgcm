@@ -323,7 +323,6 @@ C     - lowest level case
             CALL DIAGNOSTICS_FILL(vf_d,'Vm_Disv ',k,1, 2,bi,bj, myThid)
           ENDIF
 
-
           CALL DIAGNOSTICS_FILL(vf,'VISrI_Vm', k,1, 2,bi,bj, myThid)
          ENDDO
         ENDIF

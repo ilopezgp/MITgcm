@@ -359,8 +359,8 @@ C NOTE_BD: cannot use power=2 option here because of the minus sign
            DO k=1,Nr
             DO j = 1,sNy
              DO i = 1,sNx
-               tmpMk(i,j,k,bi,bj) = 0.5*uVel(i,j,k,bi,bj)
-     &            *uVel(i,j,k,bi,bj)
+               tmpMk(i,j,k,bi,bj) = uVel(i,j,k,bi,bj)
+     &            *uVel(i,j,k,bi,bj)*0.5 _d 0
              ENDDO
             ENDDO
            ENDDO
@@ -374,8 +374,8 @@ C NOTE_BD: cannot use power=2 option here because of the minus sign
            DO k=1,Nr
             DO j = 1,sNy
              DO i = 1,sNx
-               tmpMk(i,j,k,bi,bj) = 0.5*vVel(i,j,k,bi,bj)
-     &            *vVel(i,j,k,bi,bj)
+               tmpMk(i,j,k,bi,bj) = vVel(i,j,k,bi,bj)
+     &            *vVel(i,j,k,bi,bj)*0.5 _d 0
              ENDDO
             ENDDO
            ENDDO
