@@ -311,6 +311,19 @@ C         otherwise counter is not incremented !!
             ENDDO
           CALL DIAGNOSTICS_FILL(vf_d,'Vm_Disv ', k-1,1, 2,bi,bj, myThid)
           ENDIF
+C     - lowest level case
+          IF ( k.EQ.Nr ) THEN
+            DO j=jMin,jMax
+              DO i=iMin,iMax
+                vf_d(i,j) =  - vf1(i,j)
+     &             /(rAs(i,j,bi,bj)*drF(k)*_hFacS(i,j,k,bi,bj))
+                v_dissv(i,j,k,bi,bj) = vf_d(i,j)
+              ENDDO
+            ENDDO
+            CALL DIAGNOSTICS_FILL(vf_d,'Vm_Disv ',k,1, 2,bi,bj, myThid)
+          ENDIF
+
+
           CALL DIAGNOSTICS_FILL(vf,'VISrI_Vm', k,1, 2,bi,bj, myThid)
          ENDDO
         ENDIF
