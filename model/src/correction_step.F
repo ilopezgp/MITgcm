@@ -59,7 +59,9 @@ C     gV_dpy       :: implicit part of pressure gradient tendency
 #ifdef ALLOW_DIAGNOSTICS
       LOGICAL     DIAGNOSTICS_IS_ON
       EXTERNAL    DIAGNOSTICS_IS_ON
-      _RL psitmp (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
+      _RL tmpU (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
+      _RL tmpV (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
+      _RL tmpKE (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
       _RL uvel0 (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
       _RL vvel0 (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
       _RL tmpFac
@@ -178,191 +180,233 @@ C     Update merid. velocity: add implicit pressure gradient tendency
        ENDIF
 
 C -- energy diagnostics
-
        IF ( useDiagnostics .AND. 
-     &    DIAGNOSTICS_IS_ON('UUm_dEdx',myThid) ) THEN
+     &    (DIAGNOSTICS_IS_ON('UUm_dEdx',myThid) .OR.
+     &    DIAGNOSTICS_IS_ON('KEm_dEg ',myThid) ) ) THEN
          DO j=jMin,jMax
            DO i=iMin,iMax
-            psitmp(i,j) = 0.5 _d 0*(uvel0(i,j)+uVel(i,j,k,bi,bj))
+            tmpU(i,j) = 0.5 _d 0*(uvel0(i,j)+uVel(i,j,k,bi,bj))
      &          *gU_dpx(i,j)
            ENDDO
          ENDDO
-         CALL DIAGNOSTICS_FILL(psitmp,'UUm_dEdx', k ,1, 2,bi,bj, myThid)
+         CALL DIAGNOSTICS_FILL(tmpU,'UUm_dEdx', k ,1, 2,bi,bj, myThid)
        ENDIF
 
        IF ( useDiagnostics .AND. 
-     &    DIAGNOSTICS_IS_ON('VVm_dEdy',myThid) ) THEN
+     &    (DIAGNOSTICS_IS_ON('VVm_dEdy',myThid) .OR.
+     &    DIAGNOSTICS_IS_ON('KEm_dEg ',myThid) ) ) THEN
          DO j=jMin,jMax
            DO i=iMin,iMax
-             psitmp(i,j) = 0.5 _d 0*(vvel0(i,j)+vVel(i,j,k,bi,bj))
+             tmpV(i,j) = 0.5 _d 0*(vvel0(i,j)+vVel(i,j,k,bi,bj))
      &          *gV_dpy(i,j)
            ENDDO
          ENDDO
-         CALL DIAGNOSTICS_FILL(psitmp,'VVm_dEdy', k ,1, 2,bi,bj, myThid)
+         CALL DIAGNOSTICS_FILL(tmpV,'VVm_dEdy', k ,1, 2,bi,bj, myThid)
        ENDIF
 
+       IF (DIAGNOSTICS_IS_ON('KEm_dEg ',myThid)  ) THEN
+         CALL MOM_INTERP_KE( bi,bj,k,2,tmpU,tmpV,tmpKE,myThid )
+         CALL DIAGNOSTICS_FILL(tmpKE,'KEm_dEg ', k ,1, 2,bi,bj, myThid)
+       ENDIF
 
        IF ( useDiagnostics .AND. 
-     &    DIAGNOSTICS_IS_ON('UUm_Diss',myThid) ) THEN
+     &    (DIAGNOSTICS_IS_ON('UUm_Diss',myThid) .OR.
+     &    DIAGNOSTICS_IS_ON('KEm_Diss',myThid) ) ) THEN
          DO j=jMin,jMax
            DO i=iMin,iMax
-             psitmp(i,j) = 0.5 _d 0*(uvel0(i,j)+uVel(i,j,k,bi,bj))
+             tmpU(i,j) = 0.5 _d 0*(uvel0(i,j)+uVel(i,j,k,bi,bj))
      &          *u_dissh(i,j,k,bi,bj)
            ENDDO
          ENDDO
-         CALL DIAGNOSTICS_FILL(psitmp,'UUm_Diss',k,1,2,bi,bj,myThid)
+         CALL DIAGNOSTICS_FILL(tmpU,'UUm_Diss',k,1,2,bi,bj,myThid)
        ENDIF
        
        IF ( useDiagnostics .AND. 
-     &    DIAGNOSTICS_IS_ON('VVm_Diss',myThid) ) THEN
+     &    (DIAGNOSTICS_IS_ON('VVm_Diss',myThid) .OR.
+     &    DIAGNOSTICS_IS_ON('KEm_Diss',myThid) ) ) THEN
          DO j=jMin,jMax
            DO i=iMin,iMax
-             psitmp(i,j) = 0.5 _d 0*(vvel0(i,j)+vVel(i,j,k,bi,bj))
+             tmpV(i,j) = 0.5 _d 0*(vvel0(i,j)+vVel(i,j,k,bi,bj))
      &          *v_dissh(i,j,k,bi,bj)
            ENDDO
          ENDDO
-         CALL DIAGNOSTICS_FILL(psitmp,'VVm_Diss',k,1,2,bi,bj,myThid)
+         CALL DIAGNOSTICS_FILL(tmpV,'VVm_Diss',k,1,2,bi,bj,myThid)
+       ENDIF
+
+       IF (DIAGNOSTICS_IS_ON('KEm_Diss',myThid)  ) THEN
+         CALL MOM_INTERP_KE( bi,bj,k,2,tmpU,tmpV,tmpKE,myThid )
+         CALL DIAGNOSTICS_FILL(tmpKE,'KEm_Diss', k ,1, 2,bi,bj, myThid)
        ENDIF
 
        IF ( useDiagnostics .AND. 
-     &    DIAGNOSTICS_IS_ON('UUm_Ext ',myThid) ) THEN
+     &    (DIAGNOSTICS_IS_ON('UUm_Ext ',myThid) .OR.
+     &    DIAGNOSTICS_IS_ON('KEm_Ext ',myThid) )) THEN
          DO j=jMin,jMax
            DO i=iMin,iMax
-             psitmp(i,j) = 0.5 _d 0*(uvel0(i,j)+uVel(i,j,k,bi,bj))
+             tmpU(i,j) = 0.5 _d 0*(uvel0(i,j)+uVel(i,j,k,bi,bj))
      &          *u_ext(i,j,k,bi,bj)
            ENDDO
          ENDDO
-         CALL DIAGNOSTICS_FILL(psitmp,'UUm_Ext ',k,1,2,bi,bj,myThid)
+         CALL DIAGNOSTICS_FILL(tmpU,'UUm_Ext ',k,1,2,bi,bj,myThid)
        ENDIF
        
        IF ( useDiagnostics .AND. 
-     &    DIAGNOSTICS_IS_ON('VVm_Ext ',myThid) ) THEN
+     &    (DIAGNOSTICS_IS_ON('VVm_Ext ',myThid) .OR.
+     &    DIAGNOSTICS_IS_ON('KEm_Ext ',myThid) ) )THEN
          DO j=jMin,jMax
            DO i=iMin,iMax
-             psitmp(i,j) = 0.5 _d 0*(vvel0(i,j)+vVel(i,j,k,bi,bj))
+             tmpV(i,j) = 0.5 _d 0*(vvel0(i,j)+vVel(i,j,k,bi,bj))
      &          *v_ext(i,j,k,bi,bj)
            ENDDO
          ENDDO
-         CALL DIAGNOSTICS_FILL(psitmp,'VVm_Ext ',k,1,2,bi,bj,myThid)
+         CALL DIAGNOSTICS_FILL(tmpV,'VVm_Ext ',k,1,2,bi,bj,myThid)
        ENDIF
 
+       IF (DIAGNOSTICS_IS_ON('KEm_Ext ',myThid)  ) THEN
+         CALL MOM_INTERP_KE( bi,bj,k,2,tmpU,tmpV,tmpKE,myThid )
+         CALL DIAGNOSTICS_FILL(tmpKE,'KEm_Ext ', k ,1, 2,bi,bj, myThid)
+       ENDIF
 
        IF ( useDiagnostics .AND. 
      &    DIAGNOSTICS_IS_ON('UUm_Cori',myThid) ) THEN
          DO j=jMin,jMax
            DO i=iMin,iMax
-             psitmp(i,j) = 0.5 _d 0*(uvel0(i,j)+uVel(i,j,k,bi,bj))
+             tmpU(i,j) = 0.5 _d 0*(uvel0(i,j)+uVel(i,j,k,bi,bj))
      &          *u_cori(i,j,k,bi,bj)
            ENDDO
          ENDDO
-         CALL DIAGNOSTICS_FILL(psitmp,'UUm_Cori',k,1,2,bi,bj,myThid)
+         CALL DIAGNOSTICS_FILL(tmpU,'UUm_Cori',k,1,2,bi,bj,myThid)
        ENDIF
        
        IF ( useDiagnostics .AND. 
      &    DIAGNOSTICS_IS_ON('VVm_Cori',myThid) ) THEN
          DO j=jMin,jMax
            DO i=iMin,iMax
-             psitmp(i,j) = 0.5 _d 0*(vvel0(i,j)+vVel(i,j,k,bi,bj))
+             tmpV(i,j) = 0.5 _d 0*(vvel0(i,j)+vVel(i,j,k,bi,bj))
      &          *v_cori(i,j,k,bi,bj)
            ENDDO
          ENDDO
-         CALL DIAGNOSTICS_FILL(psitmp,'VVm_Cori',k,1,2,bi,bj,myThid)
+         CALL DIAGNOSTICS_FILL(tmpV,'VVm_Cori',k,1,2,bi,bj,myThid)
        ENDIF
 
-
        IF ( useDiagnostics .AND. 
-     &    DIAGNOSTICS_IS_ON('UUm_Adve',myThid) ) THEN
+     &    (DIAGNOSTICS_IS_ON('UUm_Adve',myThid) .OR.
+     &    DIAGNOSTICS_IS_ON('KEm_Adve',myThid) )) THEN
          DO j=jMin,jMax
            DO i=iMin,iMax
-             psitmp(i,j) = 0.5 _d 0*(uvel0(i,j)+uVel(i,j,k,bi,bj))
+             tmpU(i,j) = 0.5 _d 0*(uvel0(i,j)+uVel(i,j,k,bi,bj))
      &          *u_advec(i,j,k,bi,bj)
            ENDDO
          ENDDO
-         CALL DIAGNOSTICS_FILL(psitmp,'UUm_Adve',k,1,2,bi,bj,myThid)
+         CALL DIAGNOSTICS_FILL(tmpU,'UUm_Adve',k,1,2,bi,bj,myThid)
        ENDIF
        
        IF ( useDiagnostics .AND. 
-     &    DIAGNOSTICS_IS_ON('VVm_Adve',myThid) ) THEN
+     &    (DIAGNOSTICS_IS_ON('VVm_Adve',myThid) .OR.
+     &    DIAGNOSTICS_IS_ON('KEm_Adve',myThid) )) THEN
          DO j=jMin,jMax
            DO i=iMin,iMax
-             psitmp(i,j) = 0.5 _d 0*(vvel0(i,j)+vVel(i,j,k,bi,bj))
+             tmpV(i,j) = 0.5 _d 0*(vvel0(i,j)+vVel(i,j,k,bi,bj))
      &          *v_advec(i,j,k,bi,bj)
            ENDDO
          ENDDO
-         CALL DIAGNOSTICS_FILL(psitmp,'VVm_Adve',k,1,2,bi,bj,myThid)
+         CALL DIAGNOSTICS_FILL(tmpV,'VVm_Adve',k,1,2,bi,bj,myThid)
+       ENDIF
+
+       IF (DIAGNOSTICS_IS_ON('KEm_Adve',myThid)  ) THEN
+         CALL MOM_INTERP_KE( bi,bj,k,2,tmpU,tmpV,tmpKE,myThid )
+         CALL DIAGNOSTICS_FILL(tmpKE,'KEm_Adve', k ,1, 2,bi,bj, myThid)
        ENDIF
 
        IF ( useDiagnostics .AND. 
-     &    DIAGNOSTICS_IS_ON('UUm_Disv',myThid) ) THEN
+     &    (DIAGNOSTICS_IS_ON('UUm_Disv',myThid) .OR.
+     &    DIAGNOSTICS_IS_ON('KEm_Disv',myThid) )) THEN
          DO j=jMin,jMax
            DO i=iMin,iMax
-             psitmp(i,j) = 0.5 _d 0*(uvel0(i,j)+uVel(i,j,k,bi,bj))
+             tmpU(i,j) = 0.5 _d 0*(uvel0(i,j)+uVel(i,j,k,bi,bj))
      &          *u_dissv(i,j,k,bi,bj)
            ENDDO
          ENDDO
-         CALL DIAGNOSTICS_FILL(psitmp,'UUm_Disv', k,1, 2,bi,bj, myThid)
+         CALL DIAGNOSTICS_FILL(tmpU,'UUm_Disv', k,1, 2,bi,bj, myThid)
        ENDIF
        
        IF ( useDiagnostics .AND. 
-     &    DIAGNOSTICS_IS_ON('VVm_Disv',myThid) ) THEN
+     &    (DIAGNOSTICS_IS_ON('VVm_Disv',myThid) .OR.
+     &    DIAGNOSTICS_IS_ON('KEm_Disv',myThid) ) )THEN
          DO j=jMin,jMax
            DO i=iMin,iMax
-             psitmp(i,j) = 0.5 _d 0*(vvel0(i,j)+vVel(i,j,k,bi,bj))
+             tmpV(i,j) = 0.5 _d 0*(vvel0(i,j)+vVel(i,j,k,bi,bj))
      &          *v_dissv(i,j,k,bi,bj)
            ENDDO
          ENDDO
-         CALL DIAGNOSTICS_FILL(psitmp,'VVm_Disv', k,1, 2,bi,bj, myThid)
+         CALL DIAGNOSTICS_FILL(tmpV,'VVm_Disv', k,1, 2,bi,bj, myThid)
+       ENDIF
+
+       IF (DIAGNOSTICS_IS_ON('KEm_Disv',myThid)  ) THEN
+         CALL MOM_INTERP_KE( bi,bj,k,2,tmpU,tmpV,tmpKE,myThid )
+         CALL DIAGNOSTICS_FILL(tmpKE,'KEm_Disv', k ,1, 2,bi,bj, myThid)
        ENDIF
 
        IF ( useDiagnostics .AND. 
-     &    DIAGNOSTICS_IS_ON('UUm_dPdx',myThid) ) THEN
+     &    (DIAGNOSTICS_IS_ON('UUm_dPdx',myThid) .OR.
+     &    DIAGNOSTICS_IS_ON('KEm_dPg ',myThid) ) ) THEN
          tmpFac = -1. _d 0
          DO j=jMin,jMax
            DO i=iMin,iMax
-             psitmp(i,j) = 0.5 _d 0*(uvel0(i,j)+uVel(i,j,k,bi,bj))
-     &          *u_dphdx(i,j,k,bi,bj)
+             tmpU(i,j) = 0.5 _d 0*(uvel0(i,j)+uVel(i,j,k,bi,bj))
+     &          *tmpFac*u_dphdx(i,j,k,bi,bj)
            ENDDO
          ENDDO
-         CALL DIAGNOSTICS_SCALE_FILL( psitmp, tmpFac, 1,
-     &      'UUm_dPdx', k, 1, 2, bi, bj, myThid )
+         CALL DIAGNOSTICS_FILL( tmpU,'UUm_dPdx',k, 1, 2, bi, bj, myThid)
        ENDIF
        
        IF ( useDiagnostics .AND. 
-     &    DIAGNOSTICS_IS_ON('VVm_dPdy',myThid) ) THEN
+     &    (DIAGNOSTICS_IS_ON('VVm_dPdy',myThid) .OR.
+     &    DIAGNOSTICS_IS_ON('KEm_dPg ',myThid) )) THEN
          tmpFac = -1. _d 0
          DO j=jMin,jMax
            DO i=iMin,iMax
-             psitmp(i,j) = 0.5 _d 0*(vvel0(i,j)+vVel(i,j,k,bi,bj))
-     &          *v_dphdy(i,j,k,bi,bj)
+             tmpV(i,j) = 0.5 _d 0*(vvel0(i,j)+vVel(i,j,k,bi,bj))
+     &          *tmpFac*v_dphdy(i,j,k,bi,bj)
            ENDDO
          ENDDO
-         CALL DIAGNOSTICS_SCALE_FILL( psitmp, tmpFac, 1,
-     &      'VVm_dPdy', k, 1, 2, bi, bj, myThid )
+         CALL DIAGNOSTICS_FILL( tmpV,'VVm_dPdy',k, 1, 2, bi, bj, myThid)
        ENDIF
 
+       IF (DIAGNOSTICS_IS_ON('KEm_dPg ',myThid)  ) THEN
+         CALL MOM_INTERP_KE( bi,bj,k,2,tmpU,tmpV,tmpKE,myThid )
+         CALL DIAGNOSTICS_FILL(tmpKE,'KEm_dPg ', k ,1, 2,bi,bj, myThid)
+       ENDIF
 
        IF ( useDiagnostics .AND. 
-     &    DIAGNOSTICS_IS_ON('UAB_gU  ',myThid) ) THEN
+     &    (DIAGNOSTICS_IS_ON('UAB_gU  ',myThid) .OR.
+     &    DIAGNOSTICS_IS_ON('KEAB_g  ',myThid) ) )THEN
          DO j=jMin,jMax
            DO i=iMin,iMax
-             psitmp(i,j) = 0.5 _d 0*(uvel0(i,j)+uVel(i,j,k,bi,bj))
+             tmpU(i,j) = 0.5 _d 0*(uvel0(i,j)+uVel(i,j,k,bi,bj))
      &          *u_ab(i,j,k,bi,bj)
            ENDDO
          ENDDO
-         CALL DIAGNOSTICS_FILL(psitmp,'UAB_gU  ',k,1,2,bi,bj,myThid)
+         CALL DIAGNOSTICS_FILL(tmpU,'UAB_gU  ',k,1,2,bi,bj,myThid)
        ENDIF
        
        IF ( useDiagnostics .AND. 
-     &    DIAGNOSTICS_IS_ON('VAB_gV  ',myThid) ) THEN
+     &    (DIAGNOSTICS_IS_ON('VAB_gV  ',myThid) .OR.
+     &    DIAGNOSTICS_IS_ON('KEAB_g  ',myThid) ) ) THEN
          DO j=jMin,jMax
            DO i=iMin,iMax
-             psitmp(i,j) = 0.5 _d 0*(vvel0(i,j)+vVel(i,j,k,bi,bj))
+             tmpV(i,j) = 0.5 _d 0*(vvel0(i,j)+vVel(i,j,k,bi,bj))
      &          *v_ab(i,j,k,bi,bj)
            ENDDO
          ENDDO
-         CALL DIAGNOSTICS_FILL(psitmp,'VAB_gV  ',k,1,2,bi,bj,myThid)
-
+         CALL DIAGNOSTICS_FILL(tmpV,'VAB_gV  ',k,1,2,bi,bj,myThid)
        ENDIF
+
+       IF (DIAGNOSTICS_IS_ON('KEAB_g  ',myThid)  ) THEN
+         CALL MOM_INTERP_KE( bi,bj,k,2,tmpU,tmpV,tmpKE,myThid )
+         CALL DIAGNOSTICS_FILL(tmpKE,'KEAB_g  ', k ,1, 2,bi,bj, myThid)
+       ENDIF
+
 
 #endif /* ALLOW_DIAGNOSTICS */
 

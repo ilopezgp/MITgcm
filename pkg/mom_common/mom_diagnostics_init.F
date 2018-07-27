@@ -506,6 +506,41 @@ C--   add diagnostics of KE tendencies from each terms
       CALL DIAGNOSTICS_ADDTOLIST( diagNum,
      I   diagName, diagCode, diagUnits, diagTitle, diagMate, myThid )
 
+      diagName  = 'KEm_Diss'
+      diagTitle = 'KE tendency from Dissipation'
+      diagCode  = 'SMR     MR      '
+      CALL DIAGNOSTICS_ADDTOLIST( diagNum,
+     I          diagName, diagCode, diagUnits, diagTitle, 0, myThid )
+
+      diagName  = 'KEm_Disv'
+      diagTitle = 'KE tendency from vertical Dissipation'
+      diagCode  = 'SMR     MR      '
+      CALL DIAGNOSTICS_ADDTOLIST( diagNum,
+     I          diagName, diagCode, diagUnits, diagTitle, 0, myThid )
+
+      diagName  = 'KEm_Adve'
+      diagTitle = 'KE tendency from Advection terms'
+      diagCode  = 'SMR     MR      '
+      CALL DIAGNOSTICS_ADDTOLIST( diagNum,
+     I          diagName, diagCode, diagUnits, diagTitle, 0, myThid )
+
+      diagName  = 'KEm_dPg '
+      diagTitle = 'KE tendency from Hydrostatic Pressure grad'
+      diagCode  = 'SMR     MR      '
+      CALL DIAGNOSTICS_ADDTOLIST( diagNum,
+     I          diagName, diagCode, diagUnits, diagTitle, 0, myThid )
+
+      diagName  = 'KEm_dEg '
+      diagTitle = 'KE tendency from Barotropic Pressure grad'
+      diagCode  = 'SMR     MR      '
+      CALL DIAGNOSTICS_ADDTOLIST( diagNum,
+     I          diagName, diagCode, diagUnits, diagTitle, 0, myThid )
+
+      diagName  = 'KEm_Ext '
+      diagTitle = 'KE tendency from external forcing'
+      diagCode  = 'SMR     MR      '
+      CALL DIAGNOSTICS_ADDTOLIST( diagNum,
+     I          diagName, diagCode, diagUnits, diagTitle, 0, myThid )
 
 #ifdef ALLOW_NONHYDROSTATIC
 C-    vertical momentum tendencies

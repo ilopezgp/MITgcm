@@ -770,6 +770,13 @@ c     diagTitle = 'Free-Surface r-Position (Pressure, Height) (Pa,m)'
       CALL DIAGNOSTICS_ADDTOLIST( diagNum,
      I   diagName, diagCode, diagUnits, diagTitle, diagMate, myThid )
 
+      diagName  = 'TOTKETEN'
+      diagTitle = 'Kinetic Energy tendency'
+      diagUnits = 'm^2/s^2/day         '
+      diagCode  = 'SMR     MR      '
+      CALL DIAGNOSTICS_ADDTOLIST( diagNum,
+     I   diagName, diagCode, diagUnits, diagTitle, 0, myThid )
+
       diagName  = 'TOTTTEND'
       diagTitle = 'Tendency of Potential Temperature'
       diagUnits = DIAGS_MK_UNITS( tUnit4c//'/day', myThid )
@@ -878,6 +885,13 @@ c     diagTitle = 'Free-Surface r-Position (Pressure, Height) (Pa,m)'
       diagMate  = diagNum
       CALL DIAGNOSTICS_ADDTOLIST( diagNum,
      I   diagName, diagCode, diagUnits, diagTitle, diagMate, myThid )
+
+      diagName  = 'KEAB_g  '
+      diagTitle = 'KE tendency from Adams-Bashforth'
+      diagUnits = 'm^2/s^3         '
+      diagCode  = 'SMR     MR      '
+      CALL DIAGNOSTICS_ADDTOLIST( diagNum,
+     I   diagName, diagCode, diagUnits, diagTitle, 0, myThid )
 
 #ifdef ALLOW_NONHYDROSTATIC
       diagName  = 'AB_gW   '
