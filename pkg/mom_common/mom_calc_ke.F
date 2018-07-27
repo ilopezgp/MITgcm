@@ -53,7 +53,7 @@ C
 #ifdef ALLOW_AUTODIFF
       DO j=1-OLy,sNy+OLy
        DO i=1-OLx,sNx+OLx
-         KE(i,j) = 0.
+         KE(i,j) = 0. _d 0
        ENDDO
       ENDDO
 #endif
@@ -61,7 +61,7 @@ C
       IF (KEscheme.EQ.-1) THEN
        DO j=1-OLy,sNy+OLy-1
         DO i=1-OLx,sNx+OLx-1
-         KE(i,j) = 0.125*(
+         KE(i,j) = 0.125 _d 0*(
      &             ( uFld(i,j)+uFld(i+1, j ) )**2
      &            +( vFld(i,j)+vFld( i ,j+1) )**2 )
         ENDDO
@@ -76,7 +76,7 @@ C                 2  \                 /
 C
        DO j=1-OLy,sNy+OLy-1
         DO i=1-OLx,sNx+OLx-1
-         KE(i,j) = 0.25*(
+         KE(i,j) = 0.25 _d 0*(
      &           ( uFld( i , j )*uFld( i , j )
      &            +uFld(i+1, j )*uFld(i+1, j ) )
      &         + ( vFld( i , j )*vFld( i , j )
@@ -89,7 +89,7 @@ C
 C       As above but including the area
        DO j=1-OLy,sNy+OLy-1
         DO i=1-OLx,sNx+OLx-1
-         KE(i,j) = 0.25*(
+         KE(i,j) = 0.25 _d 0*(
      &           ( uFld(i, j )*uFld(i, j )*rAw(i ,j, bi,bj)
      &            +uFld(i+1,j)*uFld(i+1,j)*rAw(i+1,j,bi,bj) )
      &         + ( vFld(i, j )*vFld(i, j )*rAs(i ,j, bi,bj)
@@ -103,7 +103,7 @@ C       As KEscheme=0 but including the lopping factors and should be used
 C       for the conservative form of the momentum equations.
        DO j=1-OLy,sNy+OLy-1
         DO i=1-OLx,sNx+OLx-1
-         KE(i,j) = 0.25*(
+         KE(i,j) = 0.25 _d 0*(
      &           ( uFld( i , j )*uFld( i , j )*_hFacW(i,j,k,bi,bj)
      &            +uFld(i+1, j )*uFld(i+1, j )*_hFacW(i+1,j,k,bi,bj) )
      &         + ( vFld( i , j )*vFld( i , j )*_hFacS(i,j,k,bi,bj)
@@ -116,7 +116,7 @@ C       for the conservative form of the momentum equations.
 C       As above but including the area
        DO j=1-OLy,sNy+OLy-1
         DO i=1-OLx,sNx+OLx-1
-         KE(i,j) = 0.25*(
+         KE(i,j) = 0.25 _d 0*(
      &           (
      &    uFld(i, j )*uFld(i, j )
      &        *_hFacW(i ,j, k,bi,bj)*rAw(i ,j, bi,bj)
