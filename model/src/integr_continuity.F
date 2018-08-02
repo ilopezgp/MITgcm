@@ -26,6 +26,9 @@ C     == Global variables
 #include "GRID.h"
 #include "SURFACE.h"
 #include "FFIELDS.h"
+#ifdef ALLOW_DIAGNOSTICS
+#include "DIAGNOSTICS_EVAR.h"
+#endif
 
 C     !INPUT/OUTPUT PARAMETERS:
 C     == Routine arguments ==
@@ -69,6 +72,12 @@ C     hDivFlow :: Div. Barotropic Flow [transport unit m3/s]
       _RL rStarDhDt(1-OLx:sNx+OLx,1-OLy:sNy+OLy)
 #else
       _RL rStarDhDt(1)
+#endif
+#ifdef ALLOW_DIAGNOSTICS
+      _RL tmpFld(1-OLx:sNx+OLx,1-OLy:sNy+OLy)
+      _RL tmpFac
+      LOGICAL  DIAGNOSTICS_IS_ON
+      EXTERNAL DIAGNOSTICS_IS_ON
 #endif
 CEOP
 
@@ -322,6 +331,39 @@ c    &    _EXCH_XY_RL( PmEpR, myThid )
 #endif /* NONLIN_FRSURF */
 
 #endif /* EXACT_CONSERV */
+
+#ifdef ALLOW_DIAGNOSTICS
+      IF (witer0) THEN
+      IF ( DIAGNOSTICS_IS_ON('WRHOMAS2',myThid) ) THEN
+        tmpFac = 0.5 _d 0
+       DO bj=myByLo(myThid),myByHi(myThid)
+        DO bi=myBxLo(myThid),myBxHi(myThid)
+         DO k=1,Nr
+          IF ( k.EQ.1 ) THEN
+           DO j=1,sNy
+            DO i=1,sNx
+             tmpFld(i,j) = wVel(i,j,k,bi,bj)*rho_sav(i,j,k,bi,bj)
+            ENDDO
+           ENDDO
+          ELSE
+           DO j=1,sNy
+            DO i=1,sNx
+             tmpFld(i,j) = wVel(i,j,k,bi,bj)
+     &                   *(rho_sav(i,j,k-1,bi,bj)+rho_sav(i,j,k,bi,bj))
+     &                   *0.5 _d 0
+            ENDDO
+           ENDDO
+          ENDIF
+          CALL DIAGNOSTICS_SCALE_FILL(tmpFld, tmpFac, 1,
+     &       'WRHOMAS2',k,1,-1,bi,bj,myThid)
+         ENDDO
+        ENDDO
+       ENDDO
+      ENDIF
+      ELSE
+        witer0 = .TRUE.
+      ENDIF
+#endif /* ALLOW_DIAGNOSTICS */
 
       RETURN
       END

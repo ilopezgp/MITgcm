@@ -508,6 +508,13 @@ C---+----1----+----2----+----3----+----4----+----5----+----6----+----7-|--+----|
       CALL DIAGNOSTICS_ADDTOLIST( diagNum,
      I          diagName, diagCode, diagUnits, diagTitle, 0, myThid )
 
+      diagName  = 'WRHOMAS2'
+      diagTitle = 'Vertical Transport of Density (with averaged wVel)'
+      diagUnits = 'kg/m^2/s        '
+      diagCode  = 'WM      LR      '
+      CALL DIAGNOSTICS_ADDTOLIST( diagNum,
+     I          diagName, diagCode, diagUnits, diagTitle, 0, myThid )
+
       diagName  = 'WdRHO_P '
       diagTitle = 'Vertical velocity times delta^k(Rho)_at-const-P'
       diagUnits = 'kg/m^2/s        '
