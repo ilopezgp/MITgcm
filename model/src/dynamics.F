@@ -250,6 +250,7 @@ CEOP
      &               .OR. DIAGNOSTICS_IS_ON( 'Vm_dPHdy', myThid )
      &               .OR. DIAGNOSTICS_IS_ON( 'UUm_dPdx', myThid )
      &               .OR. DIAGNOSTICS_IS_ON( 'VVm_dPdy', myThid )
+     &               .OR. DIAGNOSTICS_IS_ON( 'KEm_dPg ', myThid )
 #endif
 
 C-- Call to routine for calculation of Eliassen-Palm-flux-forced

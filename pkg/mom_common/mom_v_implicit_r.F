@@ -284,7 +284,8 @@ C--   Diagnostics of vertical viscous flux:
       IF ( useDiagnostics .AND. implicitViscosity ) THEN
         IF ( DIAGNOSTICS_IS_ON('VISrI_Vm',myThid) 
      &     .OR. DIAGNOSTICS_IS_ON('Vm_Disv ',myThid)
-     &     .OR. DIAGNOSTICS_IS_ON('VVm_Disv',myThid) ) THEN
+     &     .OR. DIAGNOSTICS_IS_ON('VVm_Disv',myThid) 
+     &     .OR. DIAGNOSTICS_IS_ON('KEm_Disv',myThid) ) THEN
          DO k= 1,Nr
           IF ( k.EQ.1 ) THEN
 C-  Note: Needs to call DIAGNOSTICS_FILL at level k=1 even if array == 0

@@ -193,14 +193,16 @@ C     and save gU,gV_[n] into guNm1,gvNm1 for the next time step.
       IF ( useDiagnostics ) THEN
         CALL DIAGNOSTICS_FILL(gu_AB,'AB_gU   ',k,1,2,bi,bj,myThid)
         CALL DIAGNOSTICS_FILL(gv_AB,'AB_gV   ',k,1,2,bi,bj,myThid)
-        IF ( DIAGNOSTICS_IS_ON('UAB_gU  ',myThid) ) THEN
+        IF ( DIAGNOSTICS_IS_ON('UAB_gU  ',myThid) 
+     &     .OR. DIAGNOSTICS_IS_ON('KEAB_g  ',myThid) ) THEN
           DO j=jMin,jMax
             DO i=iMin,iMax
               u_ab(i,j,k,bi,bj) = gu_AB(i,j)
             ENDDO
           ENDDO
         ENDIF
-        IF ( DIAGNOSTICS_IS_ON('VAB_gV  ',myThid) ) THEN
+        IF ( DIAGNOSTICS_IS_ON('VAB_gV  ',myThid) 
+     &     .OR. DIAGNOSTICS_IS_ON('KEAB_g  ',myThid) ) THEN
           DO j=jMin,jMax
             DO i=iMin,iMax
               v_ab(i,j,k,bi,bj) = gv_AB(i,j)
