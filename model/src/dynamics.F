@@ -60,7 +60,9 @@ C     == Global variables ===
 #  include "MOM_FLUXFORM.h"
 # endif
 #endif /* ALLOW_AUTODIFF */
+#ifdef ALLOW_EDIAG
 #include "DIAGNOSTICS_EVAR.h"
+#endif
 
 C     !CALLING SEQUENCE:
 C     DYNAMICS()

@@ -64,7 +64,9 @@ C     == Global variables ==
 # include "tamc_keys.h"
 # include "MOM_FLUXFORM.h"
 #endif
+#ifdef ALLOW_EDIAG
 #include "DIAGNOSTICS_EVAR.h"
+#endif
 
 C !INPUT PARAMETERS: ===================================================
 C  bi,bj                :: current tile indices

@@ -26,7 +26,9 @@ C     == Global variables ==
 #ifdef ALLOW_NONHYDROSTATIC
 #include "NH_VARS.h"
 #endif
+#ifdef ALLOW_EDIAG
 #include "DIAGNOSTICS_EVAR.h"
+#endif
 
 C     !INPUT/OUTPUT PARAMETERS:
 C     == Routine Arguments ==
