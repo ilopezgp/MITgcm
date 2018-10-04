@@ -309,7 +309,9 @@ C         otherwise counter is not incremented !!
                vf_d(i,j) = (vf(i,j) - vf1(i,j))
      &            /(rAw(i,j,bi,bj)*drF(k-1)*_hFacW(i,j,k-1,bi,bj))
                vf1(i,j) = vf(i,j)
+#ifdef ALLOW_EDIAG
                u_dissv(i,j,k-1,bi,bj) = vf_d(i,j)
+#endif
              ENDDO
             ENDDO
           CALL DIAGNOSTICS_FILL(vf_d,'Um_Disv ', k-1,1, 2,bi,bj, myThid)
@@ -320,7 +322,9 @@ C     - lowest level case
               DO i=iMin,iMax
                 vf_d(i,j) =  - vf1(i,j)
      &             /(rAw(i,j,bi,bj)*drF(k)*_hFacW(i,j,k,bi,bj))
+#ifdef ALLOW_EDIAG
                 u_dissv(i,j,k,bi,bj) = vf_d(i,j)
+#endif
               ENDDO
             ENDDO
             CALL DIAGNOSTICS_FILL(vf_d,'Um_Disv ',k,1, 2,bi,bj, myThid)

@@ -174,6 +174,7 @@ C     Update merid. velocity: add implicit pressure gradient tendency
        ENDDO
 
 #ifdef ALLOW_DIAGNOSTICS
+#ifdef ALLOW_EDIAG
        IF ( useDiagnostics ) THEN
         CALL DIAGNOSTICS_FILL( gU_dpx,
      &                         'Um_dEdx ', k, 1, 2, bi, bj, myThid )
@@ -409,7 +410,7 @@ C -- energy diagnostics
          CALL DIAGNOSTICS_FILL(tmpKE,'KEAB_g  ', k ,1, 2,bi,bj, myThid)
        ENDIF
 
-
+#endif  /* ALLOW_EDIAG */
 #endif /* ALLOW_DIAGNOSTICS */
 
 C-    end of k loop

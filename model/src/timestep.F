@@ -195,6 +195,7 @@ C     and save gU,gV_[n] into guNm1,gvNm1 for the next time step.
       IF ( useDiagnostics ) THEN
         CALL DIAGNOSTICS_FILL(gu_AB,'AB_gU   ',k,1,2,bi,bj,myThid)
         CALL DIAGNOSTICS_FILL(gv_AB,'AB_gV   ',k,1,2,bi,bj,myThid)
+#ifdef ALLOW_EDIAG
         IF ( DIAGNOSTICS_IS_ON('UAB_gU  ',myThid) 
      &     .OR. DIAGNOSTICS_IS_ON('KEAB_g  ',myThid) ) THEN
           DO j=jMin,jMax
@@ -211,7 +212,7 @@ C     and save gU,gV_[n] into guNm1,gvNm1 for the next time step.
             ENDDO
           ENDDO
         ENDIF
-
+#endif
       ENDIF
 #endif /* ALLOW_DIAGNOSTICS */
 
@@ -404,6 +405,7 @@ C     Step forward meridional velocity (store in Gv)
       IF ( momViscosity .AND. useDiagnostics ) THEN
         CALL DIAGNOSTICS_FILL( guDissip,'Um_Diss ',k,1,2,bi,bj,myThid )
         CALL DIAGNOSTICS_FILL( gvDissip,'Vm_Diss ',k,1,2,bi,bj,myThid )
+#ifdef ALLOW_EDIAG
         DO j=jMin,jMax
           DO i=iMin,iMax
             u_dissh(i,j,k,bi,bj) = guDissip(i,j)
@@ -414,11 +416,13 @@ C     Step forward meridional velocity (store in Gv)
             v_dissh(i,j,k,bi,bj) = gvDissip(i,j)
           ENDDO
         ENDDO
+#endif
       ENDIF
 
       IF ( momForcing .AND. useDiagnostics ) THEN
         CALL DIAGNOSTICS_FILL( guExt,'Um_Ext  ',k,1,2,bi,bj,myThid )
         CALL DIAGNOSTICS_FILL( gvExt,'Vm_Ext  ',k,1,2,bi,bj,myThid )
+#ifdef ALLOW_EDIAG
         DO j=jMin,jMax
           DO i=iMin,iMax
             u_ext(i,j,k,bi,bj) = guExt(i,j)
@@ -429,12 +433,13 @@ C     Step forward meridional velocity (store in Gv)
             v_ext(i,j,k,bi,bj) = gvExt(i,j)
           ENDDO
         ENDDO
+#endif
       ENDIF
 #ifdef ALLOW_CD_CODE
       IF ( useCDscheme .AND. useDiagnostics ) THEN
         CALL DIAGNOSTICS_FILL( guCor,'Um_Cori ',k,1,2,bi,bj,myThid )
         CALL DIAGNOSTICS_FILL( gvCor,'Vm_Cori ',k,1,2,bi,bj,myThid )
-
+#ifdef ALLOW_EDIAG
         DO j=jMin,jMax
           DO i=iMin,iMax
             u_cori(i,j) = guCor(i,j)
@@ -445,6 +450,7 @@ C     Step forward meridional velocity (store in Gv)
             v_cori(i,j) = gvCor(i,j)
           ENDDO
         ENDDO
+#endif
       ENDIF
 
       ENDIF

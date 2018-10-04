@@ -495,7 +495,7 @@ C--      Integrate hydrostatic balance for phiHyd with BC of phiHyd(z=0)=0
      &                           'Um_dPHdx', k, 1, 2, bi, bj, myThid )
            CALL DIAGNOSTICS_SCALE_FILL( dPhiHydY, tmpFac, 1,
      &                           'Vm_dPHdy', k, 1, 2, bi, bj, myThid )
-
+#ifdef ALLOW_EDIAG
            DO j=jMin,jMax
              DO i=iMin,iMax
                u_dphdx(i,j,k,bi,bj) = dPhiHydX(i,j)
@@ -506,6 +506,7 @@ C--      Integrate hydrostatic balance for phiHyd with BC of phiHyd(z=0)=0
                v_dphdy(i,j,k,bi,bj) = dPhiHydY(i,j)
              ENDDO
            ENDDO
+#endif
          ENDIF
 #endif /* ALLOW_DIAGNOSTICS */
 
