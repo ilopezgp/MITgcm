@@ -501,7 +501,17 @@ c           vstress(i,j,bi,bj) = tau(i,j)*rd(i,j)*ws*sw(i,j,bi,bj)
 C- jmc: below is how it should be written ; different from above when
 C       both wind-speed & 2 compon. of the wind are specified, and in
 C-      this case, formula below is better.
-            tmpbulk =  tau(i,j)*rd(i,j)
+
+C- Modified by Ignacio 
+C #ifdef EXF_CALC_ATMRHO
+C             tau(i,j)   = atmrho_loc(i,j)*rd(i,j)*wspeed(i,j,bi,bj)
+C #else
+C             tau(i,j)   = atmrho*rd(i,j)*wspeed(i,j,bi,bj)
+C #endif
+C - End of modification
+
+C             tmpbulk =  tau(i,j)*rd(i,j)
+            tmpbulk = 1.225*0.001*6.5
             ustress(i,j,bi,bj) = tmpbulk*uwind(i,j,bi,bj)
             vstress(i,j,bi,bj) = tmpbulk*vwind(i,j,bi,bj)
            ENDIF
