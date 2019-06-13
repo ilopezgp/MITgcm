@@ -146,9 +146,9 @@ C     Subtract UVEL and VVEL from UWIND and VWIND.
            DO i = 1,sNx
 C           Modified by Ignacio: Added extra negative work due to misalignment term
             uwind(i,j,bi,bj) = uwind(i,j,bi,bj) - 0.5 _d 0
-     &         * 1.5 * (uVel(i,j,1,bi,bj)+uVel(i+1,j,1,bi,bj))
+     &         * (uVel(i,j,1,bi,bj)+uVel(i+1,j,1,bi,bj))
             vwind(i,j,bi,bj) = vwind(i,j,bi,bj) - 0.5 _d 0
-     &         * 1.5 * (vVel(i,j,1,bi,bj)+vVel(i,j+1,1,bi,bj))
+     &         * (vVel(i,j,1,bi,bj)+vVel(i,j+1,1,bi,bj))
            ENDDO
           ENDDO
          ENDDO

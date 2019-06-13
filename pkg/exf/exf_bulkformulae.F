@@ -512,8 +512,12 @@ C - End of modification
 
 C             tmpbulk =  tau(i,j)*rd(i,j)
             tmpbulk = 1.225*0.001*6.5
-            ustress(i,j,bi,bj) = tmpbulk*uwind(i,j,bi,bj)
-            vstress(i,j,bi,bj) = tmpbulk*vwind(i,j,bi,bj)
+            ustress(i,j,bi,bj) = tmpbulk*((94.0/24.0)*(uwind(i,j,bi,bj) 
+     &          + 0.5*(uVel(i,j,1,bi,bj)+uVel(i+1,j,1,bi,bj)) )
+     &          - 1.5*0.5*(uVel(i,j,1,bi,bj)+uVel(i+1,j,1,bi,bj)))
+            vstress(i,j,bi,bj) = tmpbulk*((94.0/24.0)*(vwind(i,j,bi,bj)
+     &          + 0.5*(vVel(i,j,1,bi,bj)+vVel(i,j+1,1,bi,bj)) )
+     &          - 1.5*0.5*(vVel(i,j,1,bi,bj)+vVel(i,j+1,1,bi,bj)))
            ENDIF
 
 c IF ( ATEMP(i,j,bi,bj) .NE. 0. )
