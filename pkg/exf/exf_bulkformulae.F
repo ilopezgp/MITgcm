@@ -213,6 +213,8 @@ C     these need to be 2D-arrays for vectorizing code
       _RL ztln                  ! = log(zth/zref)
       _RL tmpbulk
       _RL recip_rhoConstFresh
+      _RL alpha
+      _RL beta
       INTEGER ksrf, ksrfp1
       INTEGER iter
 C     solve4Stress :: if F, by-pass momentum turb. flux (wind-stress) calculation
@@ -511,13 +513,14 @@ C #endif
 C - End of modification
 
 C             tmpbulk =  tau(i,j)*rd(i,j)
-            tmpbulk = 1.225*0.001*6.5
-            ustress(i,j,bi,bj) = tmpbulk*((94.0/24.0)*(uwind(i,j,bi,bj) 
-     &          + 0.5*(uVel(i,j,1,bi,bj)+uVel(i+1,j,1,bi,bj)) )
-     &          - 1.5*0.5*(uVel(i,j,1,bi,bj)+uVel(i+1,j,1,bi,bj)))
-            vstress(i,j,bi,bj) = tmpbulk*((94.0/24.0)*(vwind(i,j,bi,bj)
-     &          + 0.5*(vVel(i,j,1,bi,bj)+vVel(i,j+1,1,bi,bj)) )
-     &          - 1.5*0.5*(vVel(i,j,1,bi,bj)+vVel(i,j+1,1,bi,bj)))
+            alpha = 0.01664346914
+            beta  = 0.00406942283069
+            ustress(i,j,bi,bj) = alpha*uwind(i,j,bi,bj) 
+     &          + 0.5*(uVel(i,j,1,bi,bj)+uVel(i+1,j,1,bi,bj))
+     &          - beta*0.5*(uVel(i,j,1,bi,bj)+uVel(i+1,j,1,bi,bj))
+            vstress(i,j,bi,bj) = alpha*vwind(i,j,bi,bj)
+     &          + 0.5*(vVel(i,j,1,bi,bj)+vVel(i,j+1,1,bi,bj)) 
+     &          - beta*0.5*(vVel(i,j,1,bi,bj)+vVel(i,j+1,1,bi,bj))
            ENDIF
 
 c IF ( ATEMP(i,j,bi,bj) .NE. 0. )
