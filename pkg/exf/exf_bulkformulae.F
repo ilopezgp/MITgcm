@@ -513,14 +513,14 @@ C #endif
 C - End of modification
 
 C             tmpbulk =  tau(i,j)*rd(i,j)
-            alpha_stress_coef = 0.01664346914
-            beta_stress_coef  = 0.00406942283069
-            ustress(i,j,bi,bj) = alpha_stress_coef*uwind(i,j,bi,bj) 
-     &          + 0.5*(uVel(i,j,1,bi,bj)+uVel(i+1,j,1,bi,bj))
+            alpha_stress_coef = 0.01679605
+            beta_stress_coef  = 0.00178532
+            ustress(i,j,bi,bj) = alpha_stress_coef*(uwind(i,j,bi,bj) 
+     &          + 0.5*(uVel(i,j,1,bi,bj)+uVel(i+1,j,1,bi,bj)))
      &          - beta_stress_coef*0.5*
      &          (uVel(i,j,1,bi,bj)+uVel(i+1,j,1,bi,bj))
-            vstress(i,j,bi,bj) = alpha_stress_coef*vwind(i,j,bi,bj)
-     &          + 0.5*(vVel(i,j,1,bi,bj)+vVel(i,j+1,1,bi,bj)) 
+            vstress(i,j,bi,bj) = alpha_stress_coef*(vwind(i,j,bi,bj)
+     &          + 0.5*(vVel(i,j,1,bi,bj)+vVel(i,j+1,1,bi,bj))) 
      &          - beta_stress_coef*0.5*
      &          (vVel(i,j,1,bi,bj)+vVel(i,j+1,1,bi,bj))
            ENDIF
