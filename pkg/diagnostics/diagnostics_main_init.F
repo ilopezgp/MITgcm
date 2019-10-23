@@ -907,6 +907,14 @@ c     diagTitle = 'Free-Surface r-Position (Pressure, Height) (Pa,m)'
       diagCode  = 'WM      LR      '
       CALL DIAGNOSTICS_ADDTOLIST( diagNum,
      I          diagName, diagCode, diagUnits, diagTitle, 0, myThid )
+#ifdef ALLOW_EDIAG
+      diagName  = 'WAB_gW  '
+      diagTitle = 'W*W momentum tendency from Adams-Bashforth'
+      diagUnits = DIAGS_MK_UNITS( rUnit2c//'^2/s^3', myThid )
+      diagCode  = 'WM      LR      '
+      CALL DIAGNOSTICS_ADDTOLIST( diagNum,
+     I          diagName, diagCode, diagUnits, diagTitle, 0, myThid )
+#endif /* ALLOW_EDIAG */
 #endif /* ALLOW_NONHYDROSTATIC */
 
 #ifdef ALLOW_EDDYPSI

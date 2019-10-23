@@ -412,6 +412,7 @@ C--   add diagnostics of tendencies from each terms
 
 #endif /* ALLOW_MOM_VECINV */
 
+#ifdef ALLOW_EDIAG
 C--   add diagnostics of KE tendencies from each terms
       diagUnits = 'm^2/s^3           '
 
@@ -541,6 +542,7 @@ C--   add diagnostics of KE tendencies from each terms
       diagCode  = 'SMR     MR      '
       CALL DIAGNOSTICS_ADDTOLIST( diagNum,
      I          diagName, diagCode, diagUnits, diagTitle, 0, myThid )
+#endif /* ALLOW_EDIAG */
 
 #ifdef ALLOW_NONHYDROSTATIC
 C-    vertical momentum tendencies
@@ -566,6 +568,30 @@ C-    vertical momentum tendencies
       diagCode  = 'WMr     LR      '
       CALL DIAGNOSTICS_ADDTOLIST( diagNum,
      I          diagName, diagCode, diagUnits, diagTitle, 0, myThid )
+#ifdef ALLOW_EDIAG
+      IF ( usingPCoords ) THEN
+        diagUnits = 'Pa^2/s^3          '
+      ELSE
+        diagUnits = 'm^2/s^3           '
+      ENDIF
+      diagName  = 'WWm_Diss'
+      diagTitle = 'W*W momentum tendency from Dissipation'
+      diagCode  = 'WMr     LR      '
+      CALL DIAGNOSTICS_ADDTOLIST( diagNum,
+     I          diagName, diagCode, diagUnits, diagTitle, 0, myThid )
+
+      diagName  = 'WWm_Adve'
+      diagTitle = 'W*W momentum tendency from Advection terms'
+      diagCode  = 'WMr     LR      '
+      CALL DIAGNOSTICS_ADDTOLIST( diagNum,
+     I          diagName, diagCode, diagUnits, diagTitle, 0, myThid )
+
+      diagName  = 'WWm_dPdz'
+      diagTitle = 'W*NH part of the pressure gradient'
+      diagCode  = 'WMr     LR      '
+      CALL DIAGNOSTICS_ADDTOLIST( diagNum,
+     I          diagName, diagCode, diagUnits, diagTitle, 0, myThid )
+#endif /* ALLOW_EDIAG */
 #endif /* ALLOW_NONHYDROSTATIC */
 
 C--   add diagnostics of advective & viscous flux :

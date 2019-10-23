@@ -92,6 +92,84 @@ C-    Increment is done
 C---+----1----+----2----+----3----+----4----+----5----+----6----+----7-|--+----|
 
 CBOP 0
+C     !ROUTINE: DIAGNOSTICS_COUNT
+C     !INTERFACE:
+      SUBROUTINE DIAGNOSTICS_DEDUCT( diagName,
+     I                              biArg, bjArg, myThid )
+
+C     !DESCRIPTION:
+C***********************************************************************
+C   routine to subtract 1 to the diagnostic counter only
+C***********************************************************************
+C     !USES:
+      IMPLICIT NONE
+
+C     == Global variables ===
+#include "EEPARAMS.h"
+#include "SIZE.h"
+#include "DIAGNOSTICS_SIZE.h"
+#include "DIAGNOSTICS.h"
+
+C     !INPUT PARAMETERS:
+C***********************************************************************
+C  Arguments Description
+C  ----------------------
+C     diagName :: name of diagnostic to increment the counter
+C     biArg    :: X-direction tile number, or 0 if called outside bi,bj loops
+C     bjArg    :: Y-direction tile number, or 0 if called outside bi,bj loops
+C     myThid   :: my thread Id number
+C***********************************************************************
+      CHARACTER*8 diagName
+      INTEGER biArg, bjArg
+      INTEGER myThid
+CEOP
+
+C     !LOCAL VARIABLES:
+C ===============
+      INTEGER m, n
+      INTEGER bi, bj
+      INTEGER ipt, ndId
+c     CHARACTER*(MAX_LEN_MBUF) msgBuf
+
+      IF ( biArg.EQ.0 .AND. bjArg.EQ.0 ) THEN
+        bi = myBxLo(myThid)
+        bj = myByLo(myThid)
+      ELSE
+        bi = MIN(biArg,nSx)
+        bj = MIN(bjArg,nSy)
+      ENDIF
+
+C--   Run through list of active diagnostics to find which counter
+C     to increment (needs to be a valid & active diagnostic-counter)
+      DO n=1,nLists
+       DO m=1,nActive(n)
+        IF ( diagName.EQ.flds(m,n) .AND. idiag(m,n).GT.0 ) THEN
+         ipt = idiag(m,n)
+         IF (ndiag(ipt,bi,bj).GE.0) THEN
+          ndId = ABS(jdiag(m,n))
+          ipt = ipt + pdiag(n,bi,bj)*kdiag(ndId)
+C-    Increment the counter for the diagnostic
+          IF ( biArg.EQ.0 .AND. bjArg.EQ.0 ) THEN
+           DO bj=myByLo(myThid), myByHi(myThid)
+            DO bi=myBxLo(myThid), myBxHi(myThid)
+             ndiag(ipt,bi,bj) = ndiag(ipt,bi,bj) - 1
+            ENDDO
+           ENDDO
+          ELSE
+             ndiag(ipt,bi,bj) = ndiag(ipt,bi,bj) - 1
+          ENDIF
+C-    Increment is done
+         ENDIF
+        ENDIF
+       ENDDO
+      ENDDO
+
+      RETURN
+      END
+
+C---+----1----+----2----+----3----+----4----+----5----+----6----+----7-|--+----|
+
+CBOP 0
 C     !ROUTINE: DIAGNOSTICS_GET_DIAG
 
 C     !INTERFACE:
