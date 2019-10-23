@@ -307,7 +307,7 @@ C         otherwise counter is not incremented !!
      &            *_maskW(i,j,k,bi,bj)
      &            *_maskW(i,j,k-1,bi,bj)
                vf_d(i,j) = (vf(i,j) - vf1(i,j))
-     &            /(rAw(i,j,bi,bj)*drF(k-1)*_hFacW(i,j,k-1,bi,bj))
+     &            *_recip_hFacW(i,j,k-1,bi,bj)/(rAw(i,j,bi,bj)*drF(k-1))
                vf1(i,j) = vf(i,j)
 #ifdef ALLOW_EDIAG
                u_dissv(i,j,k-1,bi,bj) = vf_d(i,j)
@@ -321,7 +321,7 @@ C     - lowest level case
             DO j=jMin,jMax
               DO i=iMin,iMax
                 vf_d(i,j) =  - vf1(i,j)
-     &             /(rAw(i,j,bi,bj)*drF(k)*_hFacW(i,j,k,bi,bj))
+     &             *_recip_hFacW(i,j,k,bi,bj)/(rAw(i,j,bi,bj)*drF(k))
 #ifdef ALLOW_EDIAG
                 u_dissv(i,j,k,bi,bj) = vf_d(i,j)
 #endif
