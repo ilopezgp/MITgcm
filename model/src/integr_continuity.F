@@ -92,6 +92,7 @@ C--   Start bi,bj loops
 
 C---+----1----+----2----+----3----+----4----+----5----+----6----+----7-|--+----|
 
+#ifdef ALLOW_DIAGNOSTICS
 #ifdef ALLOW_EDIAG
          DO k=1,Nr
            DO j=1-OLy,sNy+OLy
@@ -100,6 +101,7 @@ C---+----1----+----2----+----3----+----4----+----5----+----6----+----7-|--+----|
              ENDDO
            ENDDO
          ENDDO
+#endif
 #endif
 
 
