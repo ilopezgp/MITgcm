@@ -375,7 +375,7 @@ C     end of bi,bj loop
        DO bj=myByLo(myThid),myByHi(myThid)
         DO bi=myBxLo(myThid),myBxHi(myThid)
 
-
+#ifdef ALLOW_NONHYDROSTATIC
           IF ( DIAGNOSTICS_IS_ON('KEm_Adve',myThid)) THEN
             CALL DIAGNOSTICS_DEDUCT( 'KEm_Adve', bi, bj, myThid )
           ENDIF
@@ -391,7 +391,7 @@ C     end of bi,bj loop
           IF ( DIAGNOSTICS_IS_ON('KEAB_g  ',myThid)) THEN
             CALL DIAGNOSTICS_DEDUCT( 'KEAB_g  ', bi, bj, myThid )
           ENDIF
-
+#endif
 
          DO k=1,Nr
 
