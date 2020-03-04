@@ -64,6 +64,9 @@ C     == Global variables ==
 # include "tamc_keys.h"
 # include "MOM_FLUXFORM.h"
 #endif
+#ifdef ALLOW_EDIAG
+#include "DIAGNOSTICS_EVAR.h"
+#endif
 
 C !INPUT PARAMETERS: ===================================================
 C  bi,bj                :: current tile indices
@@ -949,6 +952,18 @@ C--   Set du/dt & dv/dt on boundaries to zero
      &                               'Um_Advec',k,1,2,bi,bj,myThid)
         CALL DIAGNOSTICS_FILL(gV(1-OLx,1-OLy,k,bi,bj),
      &                               'Vm_Advec',k,1,2,bi,bj,myThid)
+#ifdef ALLOW_EDIAG
+          DO j=jMin,jMax
+            DO i=iMin,iMax
+              u_advec(i,j,k,bi,bj) = gU(i,j,k,bi,bj)
+            ENDDO
+          ENDDO
+          DO j=jMin,jMax
+            DO i=iMin,iMax
+              v_advec(i,j,k,bi,bj) = gV(i,j,k,bi,bj)
+            ENDDO
+          ENDDO
+#endif
       ENDIF
 #endif /* ALLOW_DIAGNOSTICS */
 

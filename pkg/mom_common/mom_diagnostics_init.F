@@ -323,6 +323,19 @@ C--   add diagnostics of tendencies from each terms
       CALL DIAGNOSTICS_ADDTOLIST( diagNum,
      I   diagName, diagCode, diagUnits, diagTitle, diagMate, myThid )
 
+      diagName  = 'Um_Disv '
+      diagTitle = 'U momentum tendency from vertical Dissipation'
+      diagCode  = 'UUR     MR      '
+      diagMate  = diagNum + 2
+      CALL DIAGNOSTICS_ADDTOLIST( diagNum,
+     I   diagName, diagCode, diagUnits, diagTitle, diagMate, myThid )
+      diagName  = 'Vm_Disv '
+      diagTitle = 'V momentum tendency from vertical Dissipation'
+      diagCode  = 'VVR     MR      '
+      diagMate  = diagNum
+      CALL DIAGNOSTICS_ADDTOLIST( diagNum,
+     I   diagName, diagCode, diagUnits, diagTitle, diagMate, myThid )
+
       diagName  = 'Um_Advec'
       diagTitle = 'U momentum tendency from Advection terms'
       diagCode  = 'UUR     MR      '
@@ -357,6 +370,19 @@ C--   add diagnostics of tendencies from each terms
      I   diagName, diagCode, diagUnits, diagTitle, diagMate, myThid )
       diagName  = 'Vm_dPHdy'
       diagTitle = 'V momentum tendency from Hydrostatic Pressure grad'
+      diagCode  = 'VVR     MR      '
+      diagMate  = diagNum
+      CALL DIAGNOSTICS_ADDTOLIST( diagNum,
+     I   diagName, diagCode, diagUnits, diagTitle, diagMate, myThid )
+
+      diagName  = 'Um_dEdx '
+      diagTitle = 'U momentum tendency from Barotropic Pressure grad'
+      diagCode  = 'UUR     MR      '
+      diagMate  = diagNum + 2
+      CALL DIAGNOSTICS_ADDTOLIST( diagNum,
+     I   diagName, diagCode, diagUnits, diagTitle, diagMate, myThid )
+      diagName  = 'Vm_dEdy '
+      diagTitle = 'V momentum tendency from Barotropic Pressure grad'
       diagCode  = 'VVR     MR      '
       diagMate  = diagNum
       CALL DIAGNOSTICS_ADDTOLIST( diagNum,
@@ -406,6 +432,138 @@ C--   add diagnostics of tendencies from each terms
 
 #endif /* ALLOW_MOM_VECINV */
 
+#ifdef ALLOW_EDIAG
+C--   add diagnostics of KE tendencies from each terms
+      diagUnits = 'm^2/s^3           '
+
+      diagName  = 'UUm_Diss'
+      diagTitle = 'U*U momentum tendency from Dissipation'
+      diagCode  = 'UUR     MR      '
+      diagMate  = diagNum + 2
+      CALL DIAGNOSTICS_ADDTOLIST( diagNum,
+     I   diagName, diagCode, diagUnits, diagTitle, diagMate, myThid )
+      diagName  = 'VVm_Diss'
+      diagTitle = 'V*V momentum tendency from Dissipation'
+      diagCode  = 'VVR     MR      '
+      diagMate  = diagNum
+      CALL DIAGNOSTICS_ADDTOLIST( diagNum,
+     I   diagName, diagCode, diagUnits, diagTitle, diagMate, myThid )
+
+      diagName  = 'UUm_Disv'
+      diagTitle = 'U*U momentum tendency from vertical Dissipation'
+      diagCode  = 'UUR     MR      '
+      diagMate  = diagNum + 2
+      CALL DIAGNOSTICS_ADDTOLIST( diagNum,
+     I   diagName, diagCode, diagUnits, diagTitle, diagMate, myThid )
+      diagName  = 'VVm_Disv'
+      diagTitle = 'V*V momentum tendency from vertical Dissipation'
+      diagCode  = 'VVR     MR      '
+      diagMate  = diagNum
+      CALL DIAGNOSTICS_ADDTOLIST( diagNum,
+     I   diagName, diagCode, diagUnits, diagTitle, diagMate, myThid )
+
+      diagName  = 'UUm_Adve'
+      diagTitle = 'U*U momentum tendency from Advection terms'
+      diagCode  = 'UUR     MR      '
+      diagMate  = diagNum + 2
+      CALL DIAGNOSTICS_ADDTOLIST( diagNum,
+     I   diagName, diagCode, diagUnits, diagTitle, diagMate, myThid )
+      diagName  = 'VVm_Adve'
+      diagTitle = 'V*V momentum tendency from Advection terms'
+      diagCode  = 'VVR     MR      '
+      diagMate  = diagNum
+      CALL DIAGNOSTICS_ADDTOLIST( diagNum,
+     I   diagName, diagCode, diagUnits, diagTitle, diagMate, myThid )
+
+      diagName  = 'UUm_Cori'
+      diagTitle = 'U*U momentum tendency from Coriolis term'
+      diagCode  = 'UUR     MR      '
+      diagMate  = diagNum + 2
+      CALL DIAGNOSTICS_ADDTOLIST( diagNum,
+     I   diagName, diagCode, diagUnits, diagTitle, diagMate, myThid )
+      diagName  = 'VVm_Cori'
+      diagTitle = 'V*V momentum tendency from Coriolis term'
+      diagCode  = 'VVR     MR      '
+      diagMate  = diagNum
+      CALL DIAGNOSTICS_ADDTOLIST( diagNum,
+     I   diagName, diagCode, diagUnits, diagTitle, diagMate, myThid )
+
+      diagName  = 'UUm_dPdx'
+      diagTitle = 'U*U momentum tendency from Hydrostatic Pressure grad'
+      diagCode  = 'UUR     MR      '
+      diagMate  = diagNum + 2
+      CALL DIAGNOSTICS_ADDTOLIST( diagNum,
+     I   diagName, diagCode, diagUnits, diagTitle, diagMate, myThid )
+      diagName  = 'VVm_dPdy'
+      diagTitle = 'V*V momentum tendency from Hydrostatic Pressure grad'
+      diagCode  = 'VVR     MR      '
+      diagMate  = diagNum
+      CALL DIAGNOSTICS_ADDTOLIST( diagNum,
+     I   diagName, diagCode, diagUnits, diagTitle, diagMate, myThid )
+
+      diagName  = 'UUm_dEdx'
+      diagTitle = 'U*U momentum tendency from Barotropic Pressure grad'
+      diagCode  = 'UUR     MR      '
+      diagMate  = diagNum + 2
+      CALL DIAGNOSTICS_ADDTOLIST( diagNum,
+     I   diagName, diagCode, diagUnits, diagTitle, diagMate, myThid )
+      diagName  = 'VVm_dEdy'
+      diagTitle = 'V*V momentum tendency from Barotropic Pressure grad'
+      diagCode  = 'VVR     MR      '
+      diagMate  = diagNum
+      CALL DIAGNOSTICS_ADDTOLIST( diagNum,
+     I   diagName, diagCode, diagUnits, diagTitle, diagMate, myThid )
+
+      diagName  = 'UUm_Ext '
+      diagTitle = 'U*U momentum tendency from external forcing'
+      diagCode  = 'UUR     MR      '
+      diagMate  = diagNum + 2
+      CALL DIAGNOSTICS_ADDTOLIST( diagNum,
+     I   diagName, diagCode, diagUnits, diagTitle, diagMate, myThid )
+      diagName  = 'VVm_Ext '
+      diagTitle = 'V*V momentum tendency from external forcing'
+      diagCode  = 'VVR     MR      '
+      diagMate  = diagNum
+      CALL DIAGNOSTICS_ADDTOLIST( diagNum,
+     I   diagName, diagCode, diagUnits, diagTitle, diagMate, myThid )
+
+      diagName  = 'KEm_Diss'
+      diagTitle = 'KE tendency from Dissipation'
+      diagCode  = 'SMR     MR      '
+      CALL DIAGNOSTICS_ADDTOLIST( diagNum,
+     I          diagName, diagCode, diagUnits, diagTitle, 0, myThid )
+
+      diagName  = 'KEm_Disv'
+      diagTitle = 'KE tendency from vertical Dissipation'
+      diagCode  = 'SMR     MR      '
+      CALL DIAGNOSTICS_ADDTOLIST( diagNum,
+     I          diagName, diagCode, diagUnits, diagTitle, 0, myThid )
+
+      diagName  = 'KEm_Adve'
+      diagTitle = 'KE tendency from Advection terms'
+      diagCode  = 'SMR     MR      '
+      CALL DIAGNOSTICS_ADDTOLIST( diagNum,
+     I          diagName, diagCode, diagUnits, diagTitle, 0, myThid )
+
+      diagName  = 'KEm_dPg '
+      diagTitle = 'KE tendency from Hydrostatic Pressure grad'
+      diagCode  = 'SMR     MR      '
+      CALL DIAGNOSTICS_ADDTOLIST( diagNum,
+     I          diagName, diagCode, diagUnits, diagTitle, 0, myThid )
+
+      diagName  = 'KEm_dEg '
+      diagTitle = 'KE tendency from Barotropic Pressure grad'
+      diagCode  = 'SMR     MR      '
+      CALL DIAGNOSTICS_ADDTOLIST( diagNum,
+     I          diagName, diagCode, diagUnits, diagTitle, 0, myThid )
+
+      diagName  = 'KEm_Ext '
+      diagTitle = 'KE tendency from external forcing'
+      diagCode  = 'SMR     MR      '
+      CALL DIAGNOSTICS_ADDTOLIST( diagNum,
+     I          diagName, diagCode, diagUnits, diagTitle, 0, myThid )
+#endif /* ALLOW_EDIAG */
+
 #ifdef ALLOW_NONHYDROSTATIC
 C-    vertical momentum tendencies
       IF ( usingPCoords ) THEN
@@ -430,6 +588,30 @@ C-    vertical momentum tendencies
       diagCode  = 'WMr     LR      '
       CALL DIAGNOSTICS_ADDTOLIST( diagNum,
      I          diagName, diagCode, diagUnits, diagTitle, 0, myThid )
+#ifdef ALLOW_EDIAG
+      IF ( usingPCoords ) THEN
+        diagUnits = 'Pa^2/s^3          '
+      ELSE
+        diagUnits = 'm^2/s^3           '
+      ENDIF
+      diagName  = 'WWm_Diss'
+      diagTitle = 'W*W momentum tendency from Dissipation'
+      diagCode  = 'WMr     LR      '
+      CALL DIAGNOSTICS_ADDTOLIST( diagNum,
+     I          diagName, diagCode, diagUnits, diagTitle, 0, myThid )
+
+      diagName  = 'WWm_Adve'
+      diagTitle = 'W*W momentum tendency from Advection terms'
+      diagCode  = 'WMr     LR      '
+      CALL DIAGNOSTICS_ADDTOLIST( diagNum,
+     I          diagName, diagCode, diagUnits, diagTitle, 0, myThid )
+
+      diagName  = 'WWm_dPdz'
+      diagTitle = 'W*NH part of the pressure gradient'
+      diagCode  = 'WMr     LR      '
+      CALL DIAGNOSTICS_ADDTOLIST( diagNum,
+     I          diagName, diagCode, diagUnits, diagTitle, 0, myThid )
+#endif /* ALLOW_EDIAG */
 #endif /* ALLOW_NONHYDROSTATIC */
 
 C--   add diagnostics of advective & viscous flux :

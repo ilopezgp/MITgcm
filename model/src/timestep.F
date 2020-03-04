@@ -31,6 +31,9 @@ C     == Global variables ==
 #ifdef ALLOW_NONHYDROSTATIC
 #include "NH_VARS.h"
 #endif
+#ifdef ALLOW_EDIAG
+#include "DIAGNOSTICS_EVAR.h"
+#endif
 
 C     !INPUT/OUTPUT PARAMETERS:
 C     == Routine Arguments ==
@@ -71,6 +74,11 @@ C     gv_AB    :: tendency increment from Adams-Bashforth, v component
 #ifdef ALLOW_CD_CODE
       _RL     guCor(1-OLx:sNx+OLx,1-OLy:sNy+OLy)
       _RL     gvCor(1-OLx:sNx+OLx,1-OLy:sNy+OLy)
+#endif
+#ifdef ALLOW_DIAGNOSTICS
+      LOGICAL     DIAGNOSTICS_IS_ON
+      EXTERNAL    DIAGNOSTICS_IS_ON
+      _RL vf (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
 #endif
 CEOP
 
@@ -187,6 +195,24 @@ C     and save gU,gV_[n] into guNm1,gvNm1 for the next time step.
       IF ( useDiagnostics ) THEN
         CALL DIAGNOSTICS_FILL(gu_AB,'AB_gU   ',k,1,2,bi,bj,myThid)
         CALL DIAGNOSTICS_FILL(gv_AB,'AB_gV   ',k,1,2,bi,bj,myThid)
+#ifdef ALLOW_EDIAG
+        IF ( DIAGNOSTICS_IS_ON('UAB_gU  ',myThid) 
+     &     .OR. DIAGNOSTICS_IS_ON('KEAB_g  ',myThid) ) THEN
+          DO j=jMin,jMax
+            DO i=iMin,iMax
+              u_ab(i,j,k,bi,bj) = gu_AB(i,j)
+            ENDDO
+          ENDDO
+        ENDIF
+        IF ( DIAGNOSTICS_IS_ON('VAB_gV  ',myThid) 
+     &     .OR. DIAGNOSTICS_IS_ON('KEAB_g  ',myThid) ) THEN
+          DO j=jMin,jMax
+            DO i=iMin,iMax
+              v_ab(i,j,k,bi,bj) = gv_AB(i,j)
+            ENDDO
+          ENDDO
+        ENDIF
+#endif
       ENDIF
 #endif /* ALLOW_DIAGNOSTICS */
 
@@ -379,15 +405,54 @@ C     Step forward meridional velocity (store in Gv)
       IF ( momViscosity .AND. useDiagnostics ) THEN
         CALL DIAGNOSTICS_FILL( guDissip,'Um_Diss ',k,1,2,bi,bj,myThid )
         CALL DIAGNOSTICS_FILL( gvDissip,'Vm_Diss ',k,1,2,bi,bj,myThid )
+#ifdef ALLOW_EDIAG
+        DO j=jMin,jMax
+          DO i=iMin,iMax
+            u_dissh(i,j,k,bi,bj) = guDissip(i,j)
+          ENDDO
+        ENDDO
+        DO j=jMin,jMax
+          DO i=iMin,iMax
+            v_dissh(i,j,k,bi,bj) = gvDissip(i,j)
+          ENDDO
+        ENDDO
+#endif
       ENDIF
+
       IF ( momForcing .AND. useDiagnostics ) THEN
         CALL DIAGNOSTICS_FILL( guExt,'Um_Ext  ',k,1,2,bi,bj,myThid )
         CALL DIAGNOSTICS_FILL( gvExt,'Vm_Ext  ',k,1,2,bi,bj,myThid )
+#ifdef ALLOW_EDIAG
+        DO j=jMin,jMax
+          DO i=iMin,iMax
+            u_ext(i,j,k,bi,bj) = guExt(i,j)
+          ENDDO
+        ENDDO
+        DO j=jMin,jMax
+          DO i=iMin,iMax
+            v_ext(i,j,k,bi,bj) = gvExt(i,j)
+          ENDDO
+        ENDDO
+#endif
       ENDIF
 #ifdef ALLOW_CD_CODE
       IF ( useCDscheme .AND. useDiagnostics ) THEN
         CALL DIAGNOSTICS_FILL( guCor,'Um_Cori ',k,1,2,bi,bj,myThid )
         CALL DIAGNOSTICS_FILL( gvCor,'Vm_Cori ',k,1,2,bi,bj,myThid )
+#ifdef ALLOW_EDIAG
+        DO j=jMin,jMax
+          DO i=iMin,iMax
+            u_cori(i,j) = guCor(i,j)
+          ENDDO
+        ENDDO
+        DO j=jMin,jMax
+          DO i=iMin,iMax
+            v_cori(i,j) = gvCor(i,j)
+          ENDDO
+        ENDDO
+#endif
+      ENDIF
+
       ENDIF
 #endif /* ALLOW_CD_CODE */
 #endif /* ALLOW_DIAGNOSTICS */

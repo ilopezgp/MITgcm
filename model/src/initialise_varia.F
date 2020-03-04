@@ -89,6 +89,9 @@ C     == Global variables ==
 # include "FFIELDS.h"
 # include "CTRL_FIELDS.h"
 #endif
+#ifdef ALLOW_DIAGNOSTICS
+#include "DIAGNOSTICS_EVAR.h"
+#endif
 
 C     !INPUT/OUTPUT PARAMETERS:
 C     == Routine arguments ==
@@ -240,6 +243,9 @@ C-    update also CG2D matrix (and preconditioner)
 
 #ifdef ALLOW_DEBUG
       IF (debugMode) CALL DEBUG_CALL('INTEGR_CONTINUITY',myThid)
+#endif
+#ifdef ALLOW_DIAGNOSTICS
+      witer0 = .FALSE.
 #endif
 C--   Integrate continuity vertically for vertical velocity
       CALL INTEGR_CONTINUITY( uVel, vVel,

@@ -508,6 +508,13 @@ C---+----1----+----2----+----3----+----4----+----5----+----6----+----7-|--+----|
       CALL DIAGNOSTICS_ADDTOLIST( diagNum,
      I          diagName, diagCode, diagUnits, diagTitle, 0, myThid )
 
+      diagName  = 'WRHOMAS2'
+      diagTitle = 'Vertical Transport of Density (with averaged wVel)'
+      diagUnits = 'kg/m^2/s        '
+      diagCode  = 'WM      LR      '
+      CALL DIAGNOSTICS_ADDTOLIST( diagNum,
+     I          diagName, diagCode, diagUnits, diagTitle, 0, myThid )
+
       diagName  = 'WdRHO_P '
       diagTitle = 'Vertical velocity times delta^k(Rho)_at-const-P'
       diagUnits = 'kg/m^2/s        '
@@ -754,6 +761,29 @@ c     diagTitle = 'Free-Surface r-Position (Pressure, Height) (Pa,m)'
       CALL DIAGNOSTICS_ADDTOLIST( diagNum,
      I   diagName, diagCode, diagUnits, diagTitle, diagMate, myThid )
 
+      diagName  = 'UTOTUTEN'
+      diagTitle = 'U*Tendency of Zonal Component of Velocity'
+      diagUnits = 'm^2/s^2/day         '
+      diagCode  = 'UUR     MR      '
+      diagMate  = diagNum + 2
+      CALL DIAGNOSTICS_ADDTOLIST( diagNum,
+     I   diagName, diagCode, diagUnits, diagTitle, diagMate, myThid )
+
+      diagName  = 'VTOTVTEN'
+      diagTitle = 'V*Tendency of Meridional Component of Velocity'
+      diagUnits = 'm^2/s^2/day         '
+      diagCode  = 'VVR     MR      '
+      diagMate  = diagNum
+      CALL DIAGNOSTICS_ADDTOLIST( diagNum,
+     I   diagName, diagCode, diagUnits, diagTitle, diagMate, myThid )
+
+      diagName  = 'TOTKETEN'
+      diagTitle = 'Kinetic Energy tendency'
+      diagUnits = 'm^2/s^2/day         '
+      diagCode  = 'SMR     MR      '
+      CALL DIAGNOSTICS_ADDTOLIST( diagNum,
+     I   diagName, diagCode, diagUnits, diagTitle, 0, myThid )
+
       diagName  = 'TOTTTEND'
       diagTitle = 'Tendency of Potential Temperature'
       diagUnits = DIAGS_MK_UNITS( tUnit4c//'/day', myThid )
@@ -847,6 +877,29 @@ c     diagTitle = 'Free-Surface r-Position (Pressure, Height) (Pa,m)'
       CALL DIAGNOSTICS_ADDTOLIST( diagNum,
      I   diagName, diagCode, diagUnits, diagTitle, diagMate, myThid )
 
+      diagName  = 'UAB_gU  '
+      diagTitle = 'U*U momentum tendency from Adams-Bashforth'
+      diagUnits = 'm^2/s^3         '
+      diagCode  = 'UUR     MR      '
+      diagMate  = diagNum + 2
+      CALL DIAGNOSTICS_ADDTOLIST( diagNum,
+     I   diagName, diagCode, diagUnits, diagTitle, diagMate, myThid )
+
+      diagName  = 'VAB_gV  '
+      diagTitle = 'V*V momentum tendency from Adams-Bashforth'
+      diagUnits = 'm^2/s^3         '
+      diagCode  = 'VVR     MR      '
+      diagMate  = diagNum
+      CALL DIAGNOSTICS_ADDTOLIST( diagNum,
+     I   diagName, diagCode, diagUnits, diagTitle, diagMate, myThid )
+
+      diagName  = 'KEAB_g  '
+      diagTitle = 'KE tendency from Adams-Bashforth'
+      diagUnits = 'm^2/s^3         '
+      diagCode  = 'SMR     MR      '
+      CALL DIAGNOSTICS_ADDTOLIST( diagNum,
+     I   diagName, diagCode, diagUnits, diagTitle, 0, myThid )
+
 #ifdef ALLOW_NONHYDROSTATIC
       diagName  = 'AB_gW   '
       diagTitle = 'W momentum tendency from Adams-Bashforth'
@@ -854,6 +907,14 @@ c     diagTitle = 'Free-Surface r-Position (Pressure, Height) (Pa,m)'
       diagCode  = 'WM      LR      '
       CALL DIAGNOSTICS_ADDTOLIST( diagNum,
      I          diagName, diagCode, diagUnits, diagTitle, 0, myThid )
+#ifdef ALLOW_EDIAG
+      diagName  = 'WAB_gW  '
+      diagTitle = 'W*W momentum tendency from Adams-Bashforth'
+      diagUnits = DIAGS_MK_UNITS( rUnit2c//'^2/s^3', myThid )
+      diagCode  = 'WM      LR      '
+      CALL DIAGNOSTICS_ADDTOLIST( diagNum,
+     I          diagName, diagCode, diagUnits, diagTitle, 0, myThid )
+#endif /* ALLOW_EDIAG */
 #endif /* ALLOW_NONHYDROSTATIC */
 
 #ifdef ALLOW_EDDYPSI

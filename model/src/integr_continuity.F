@@ -31,6 +31,11 @@ C     == Global variables
 #include "GRID.h"
 #include "SURFACE.h"
 #include "FFIELDS.h"
+#ifdef ALLOW_DIAGNOSTICS
+#ifdef ALLOW_EDIAG
+#include "DIAGNOSTICS_EVAR.h"
+#endif
+#endif
 
 C     !INPUT/OUTPUT PARAMETERS:
 C     == Routine arguments ==
@@ -75,6 +80,15 @@ C     hDivFlow :: Div. Barotropic Flow [transport unit m3/s]
 #else
       _RL rStarDhDt(1)
 #endif
+#ifdef ALLOW_DIAGNOSTICS
+      _RL tmpFld(1-OLx:sNx+OLx,1-OLy:sNy+OLy)
+      _RL tmpFac
+      LOGICAL  DIAGNOSTICS_IS_ON
+      EXTERNAL DIAGNOSTICS_IS_ON
+#ifdef ALLOW_EDIAG
+      _RL gw_nhpg(1-OLx:sNx+OLx,1-OLy:sNy+OLy,Nr,nSx,nSy)
+#endif
+#endif
 CEOP
 
 C--   Start bi,bj loops
@@ -82,6 +96,19 @@ C--   Start bi,bj loops
        DO bi=myBxLo(myThid),myBxHi(myThid)
 
 C---+----1----+----2----+----3----+----4----+----5----+----6----+----7-|--+----|
+
+#ifdef ALLOW_DIAGNOSTICS
+#ifdef ALLOW_EDIAG
+         DO k=1,Nr
+           DO j=1-OLy,sNy+OLy
+             DO i=1-OLx,sNx+OLx
+               gw_nhpg(i,j,k,bi,bj) = wVel(i,j,k,bi,bj)
+             ENDDO
+           ENDDO
+         ENDDO
+#endif
+#endif
+
 
 #ifdef EXACT_CONSERV
       IF (exactConserv) THEN
@@ -334,6 +361,166 @@ c    &    _EXCH_XY_RL( PmEpR, myThid )
 #endif /* NONLIN_FRSURF */
 
 #endif /* EXACT_CONSERV */
+
+#ifdef ALLOW_DIAGNOSTICS
+# ifdef ALLOW_EDIAG
+      ! skip first iteration (model initialization)
+      IF (witer0) THEN
+
+       DO bj=myByLo(myThid),myByHi(myThid)
+        DO bi=myBxLo(myThid),myBxHi(myThid)
+         DO k=1,Nr
+
+         DO j=1,sNy
+           DO i=1,sNx
+             gw_nhpg(i,j,k,bi,bj) = 
+     &          (wVel(i,j,k,bi,bj)-gw_nhpg(i,j,k,bi,bj))/deltaTmom
+           ENDDO
+         ENDDO
+C     end of k loop
+       ENDDO
+C     end of bi,bj loop
+       ENDDO
+       ENDDO
+
+
+       DO bj=myByLo(myThid),myByHi(myThid)
+        DO bi=myBxLo(myThid),myBxHi(myThid)
+
+#ifdef ALLOW_NONHYDROSTATIC
+          IF ( DIAGNOSTICS_IS_ON('KEm_Adve',myThid)) THEN
+            CALL DIAGNOSTICS_DEDUCT( 'KEm_Adve', bi, bj, myThid )
+          ENDIF
+
+          IF ( DIAGNOSTICS_IS_ON('KEm_dEg ',myThid)) THEN
+            CALL DIAGNOSTICS_DEDUCT( 'KEm_dEg ', bi, bj, myThid )
+          ENDIF
+
+          IF ( DIAGNOSTICS_IS_ON('KEm_Diss',myThid)) THEN
+            CALL DIAGNOSTICS_DEDUCT( 'KEm_Diss', bi, bj, myThid )
+          ENDIF
+
+          IF ( DIAGNOSTICS_IS_ON('KEAB_g  ',myThid)) THEN
+            CALL DIAGNOSTICS_DEDUCT( 'KEAB_g  ', bi, bj, myThid )
+          ENDIF
+#endif
+
+         DO k=1,Nr
+
+
+      IF ( DIAGNOSTICS_IS_ON('WRHOMAS2',myThid) ) THEN
+        tmpFac = 0.5 _d 0
+          IF ( k.EQ.1 ) THEN
+           DO j=1,sNy
+            DO i=1,sNx
+             tmpFld(i,j) = wVel(i,j,k,bi,bj)*rho_sav(i,j,k,bi,bj)
+            ENDDO
+           ENDDO
+          ELSE
+           DO j=1,sNy
+            DO i=1,sNx
+             tmpFld(i,j) = wVel(i,j,k,bi,bj)
+     &                   *(rho_sav(i,j,k-1,bi,bj)+rho_sav(i,j,k,bi,bj))
+     &                   *0.5 _d 0
+            ENDDO
+           ENDDO
+          ENDIF
+          CALL DIAGNOSTICS_SCALE_FILL(tmpFld, tmpFac, 1,
+     &       'WRHOMAS2',k,1,-1,bi,bj,myThid)
+      ENDIF
+
+#ifdef ALLOW_NONHYDROSTATIC
+       IF ( useDiagnostics .AND. 
+     &    (DIAGNOSTICS_IS_ON('WWm_Adve',myThid) .OR.
+     &    DIAGNOSTICS_IS_ON('KEm_Adve',myThid) ) ) THEN
+         DO j=1,sNy
+           DO i=1,sNx
+             tmpFld(i,j) = 0.5 _d 0
+     &          *(wvel0(i,j,k,bi,bj)+wVel(i,j,k,bi,bj))
+     &          *w_advec(i,j,k,bi,bj)
+           ENDDO
+         ENDDO
+        CALL DIAGNOSTICS_FILL(tmpFld,'WWm_Adve',k, 1, 2, bi, bj, myThid)
+
+       IF (DIAGNOSTICS_IS_ON('KEm_Adve',myThid)  ) THEN
+         CALL DIAGNOSTICS_INTERP_VERT_OCEAN(bi,bj,k,
+     $     wvel0, wvel, w_advec, tmpFld, myThid)
+         CALL DIAGNOSTICS_FILL(tmpFld,'KEm_Adve', k ,1, 2,bi,bj, myThid)
+       ENDIF
+       ENDIF
+
+       IF ( useDiagnostics .AND. 
+     &    (DIAGNOSTICS_IS_ON('WWm_Diss',myThid) .OR.
+     &    DIAGNOSTICS_IS_ON('KEm_Diss',myThid) ) ) THEN
+         DO j=1,sNy
+           DO i=1,sNx
+             tmpFld(i,j) = 0.5 _d 0
+     &          *(wvel0(i,j,k,bi,bj)+wVel(i,j,k,bi,bj))
+     &          *w_diss(i,j,k,bi,bj)
+           ENDDO
+         ENDDO
+        CALL DIAGNOSTICS_FILL(tmpFld,'WWm_Diss',k, 1, 2, bi, bj, myThid)
+
+       IF (DIAGNOSTICS_IS_ON('KEm_Diss',myThid)  ) THEN
+         CALL DIAGNOSTICS_INTERP_VERT_OCEAN(bi,bj,k,
+     $     wvel0, wvel, w_diss, tmpFld, myThid)
+         CALL DIAGNOSTICS_FILL(tmpFld,'KEm_Diss', k ,1, 2,bi,bj, myThid)
+       ENDIF
+       ENDIF
+
+       IF ( useDiagnostics .AND. 
+     &    (DIAGNOSTICS_IS_ON('WAB_gW  ',myThid) .OR.
+     &    DIAGNOSTICS_IS_ON('KEAB_g  ',myThid) ) ) THEN
+         DO j=1,sNy
+           DO i=1,sNx
+             tmpFld(i,j) = 0.5 _d 0
+     &          *(wvel0(i,j,k,bi,bj)+wVel(i,j,k,bi,bj))
+     &          *w_ab(i,j,k,bi,bj)
+           ENDDO
+         ENDDO
+        CALL DIAGNOSTICS_FILL(tmpFld,'WAB_g  ',k, 1, 2, bi, bj, myThid)
+
+       IF (DIAGNOSTICS_IS_ON('KEAB_g  ',myThid)  ) THEN
+         CALL DIAGNOSTICS_INTERP_VERT_OCEAN(bi,bj,k,
+     $     wvel0, wvel, w_ab, tmpFld, myThid)
+         CALL DIAGNOSTICS_FILL(tmpFld,'KEAB_g  ', k ,1, 2,bi,bj, myThid)
+       ENDIF
+
+       ENDIF
+
+       IF ( useDiagnostics .AND. 
+     &    (DIAGNOSTICS_IS_ON('WWm_dPdz',myThid) .OR.
+     &    DIAGNOSTICS_IS_ON('KEm_dEg ',myThid) ) ) THEN
+         DO j=1,sNy
+           DO i=1,sNx
+             tmpFld(i,j) = 0.5 _d 0
+     &          *(wvel0(i,j,k,bi,bj)+wVel(i,j,k,bi,bj))
+     &          *gw_nhpg(i,j,k,bi,bj)
+           ENDDO
+         ENDDO
+        CALL DIAGNOSTICS_FILL(tmpFld,'WWm_dPdz',k, 1, 2, bi, bj, myThid)
+
+       IF (DIAGNOSTICS_IS_ON('KEm_dEg ',myThid)  ) THEN
+         CALL DIAGNOSTICS_INTERP_VERT_OCEAN(bi,bj,k,
+     $     wvel0, wvel, gw_nhpg, tmpFld, myThid)
+         CALL DIAGNOSTICS_FILL(tmpFld,'KEm_dEg ', k ,1, 2,bi,bj, myThid)
+       ENDIF
+
+       ENDIF
+#endif /* ALLOW_NONHYDROSTATIC */
+
+C -- end k loop
+         ENDDO
+C--   End bi,bj loops
+        ENDDO
+       ENDDO
+
+      ELSE
+        witer0 = .TRUE.
+      ENDIF
+
+# endif /* ALLOW_EDIAG */
+#endif /* ALLOW_DIAGNOSTICS */
 
       RETURN
       END

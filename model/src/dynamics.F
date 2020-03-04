@@ -60,6 +60,9 @@ C     == Global variables ===
 #  include "MOM_FLUXFORM.h"
 # endif
 #endif /* ALLOW_AUTODIFF */
+#ifdef ALLOW_EDIAG
+#include "DIAGNOSTICS_EVAR.h"
+#endif
 
 C     !CALLING SEQUENCE:
 C     DYNAMICS()
@@ -110,6 +113,7 @@ C     !FUNCTIONS:
 #ifdef ALLOW_DIAGNOSTICS
       LOGICAL  DIAGNOSTICS_IS_ON
       EXTERNAL DIAGNOSTICS_IS_ON
+      _RL vf (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
 #endif
 
 C     !LOCAL VARIABLES:
@@ -246,6 +250,9 @@ CEOP
       IF ( useDiagnostics )
      &  dPhiHydDiagIsOn = DIAGNOSTICS_IS_ON( 'Um_dPHdx', myThid )
      &               .OR. DIAGNOSTICS_IS_ON( 'Vm_dPHdy', myThid )
+     &               .OR. DIAGNOSTICS_IS_ON( 'UUm_dPdx', myThid )
+     &               .OR. DIAGNOSTICS_IS_ON( 'VVm_dPdy', myThid )
+     &               .OR. DIAGNOSTICS_IS_ON( 'KEm_dPg ', myThid )
 #endif
 
 C-- Call to routine for calculation of Eliassen-Palm-flux-forced
@@ -487,6 +494,18 @@ C--      Integrate hydrostatic balance for phiHyd with BC of phiHyd(z=0)=0
      &                           'Um_dPHdx', k, 1, 2, bi, bj, myThid )
            CALL DIAGNOSTICS_SCALE_FILL( dPhiHydY, tmpFac, 1,
      &                           'Vm_dPHdy', k, 1, 2, bi, bj, myThid )
+#ifdef ALLOW_EDIAG
+           DO j=jMin,jMax
+             DO i=iMin,iMax
+               u_dphdx(i,j,k,bi,bj) = dPhiHydX(i,j)
+             ENDDO
+           ENDDO
+           DO j=jMin,jMax
+             DO i=iMin,iMax
+               v_dphdy(i,j,k,bi,bj) = dPhiHydY(i,j)
+             ENDDO
+           ENDDO
+#endif
          ENDIF
 #endif /* ALLOW_DIAGNOSTICS */
 

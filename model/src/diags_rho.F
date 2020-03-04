@@ -47,7 +47,7 @@ C     myThid   :: my Thread Id number
       _RL rho3d (1-OLx:sNx+OLx,1-OLy:sNy+OLy,Nr)
       _RL rhoKm1(1-OLx:sNx+OLx,1-OLy:sNy+OLy)
       _RL wFld  (1-OLx:sNx+OLx,1-OLy:sNy+OLy,Nr,nSx,nSy)
-      _RL myTime
+      _RL myTime,tmpFac
       INTEGER myIter, myThid
 CEOP
 
@@ -116,6 +116,9 @@ C     == Global variables ==
 #include "EEPARAMS.h"
 #include "PARAMS.h"
 #include "GRID.h"
+#ifdef ALLOW_DIAGNOSTICS
+#include "DIAGNOSTICS_EVAR.h"
+#endif
 
 C     !INPUT/OUTPUT PARAMETERS:
 C     == Routine Arguments ==
@@ -191,7 +194,9 @@ C---+----1----+----2----+----3----+----4----+----5----+----6----+----7-|--+----|
        ENDDO
       ENDIF
 
-      IF ( DIAGNOSTICS_IS_ON('WRHOMASS',myThid) ) THEN
+      IF ( DIAGNOSTICS_IS_ON('WRHOMASS',myThid) .OR.
+     &     DIAGNOSTICS_IS_ON('WRHOMAS2',myThid) ) THEN
+        tmpFac = 0.5 _d 0
        DO bj=myByLo(myThid),myByHi(myThid)
         DO bi=myBxLo(myThid),myBxHi(myThid)
          DO k=1,Nr
@@ -199,6 +204,7 @@ C---+----1----+----2----+----3----+----4----+----5----+----6----+----7-|--+----|
            DO j=1,sNy
             DO i=1,sNx
              tmpFld(i,j) = wFld(i,j,k,bi,bj)*rho3d(i,j,k,bi,bj)
+             rho_sav(i,j,k,bi,bj) = rho3d(i,j,k,bi,bj)
             ENDDO
            ENDDO
           ELSE
@@ -207,14 +213,19 @@ C---+----1----+----2----+----3----+----4----+----5----+----6----+----7-|--+----|
              tmpFld(i,j) = wFld(i,j,k,bi,bj)
      &                   *(rho3d(i,j,k-1,bi,bj)+rho3d(i,j,k,bi,bj))
      &                   *0.5 _d 0
+             rho_sav(i,j,k,bi,bj) = rho3d(i,j,k,bi,bj)
             ENDDO
            ENDDO
           ENDIF
           CALL DIAGNOSTICS_FILL(tmpFld,'WRHOMASS',k,1,2,bi,bj,myThid)
+          CALL DIAGNOSTICS_SCALE_FILL(tmpFld, tmpFac, 1,
+     &       'WRHOMAS2',k,1,0,bi,bj,myThid)
          ENDDO
         ENDDO
        ENDDO
       ENDIF
+
+
 
 #endif /* ALLOW_DIAGNOSTICS */
 

@@ -1,20 +1,18 @@
 #include "MOM_COMMON_OPTIONS.h"
 
 CBOP
-C !ROUTINE: MOM_CALC_KE
+C !ROUTINE: MOM_INTERP_KE
 
 C !INTERFACE: ==========================================================
-      SUBROUTINE MOM_CALC_KE(
+      SUBROUTINE MOM_INTERP_KE(
      I        bi,bj,k,KEscheme,
      I        uFld, vFld,
      O        KE,
      I        myThid)
 
 C !DESCRIPTION:
-C Calculates the Kinetic energy of horizontal flow
-C \begin{equation*}
-C KE = \frac{1}{2} \left( h_w \overline{u^2}^i + h_s \overline{v^2}^j \right)
-C \end{equation*}
+C Interpolates the Kinetic energy tendency of horizontal flow
+C based on mom_calc_ke
 
 C !USES: ===============================================================
       IMPLICIT NONE
@@ -53,21 +51,12 @@ C
 #ifdef ALLOW_AUTODIFF
       DO j=1-OLy,sNy+OLy
        DO i=1-OLx,sNx+OLx
-         KE(i,j) = 0. _d 0
+         KE(i,j) = 0.
        ENDDO
       ENDDO
 #endif
 
-      IF (KEscheme.EQ.-1) THEN
-       DO j=1-OLy,sNy+OLy-1
-        DO i=1-OLx,sNx+OLx-1
-         KE(i,j) = 0.125 _d 0*(
-     &             ( uFld(i,j)+uFld(i+1, j ) )**2
-     &            +( vFld(i,j)+vFld( i ,j+1) )**2 )
-        ENDDO
-       ENDDO
-
-      ELSEIF (KEscheme.EQ.0) THEN
+      IF (KEscheme.EQ.0) THEN
 C       This defn of KE should be used for the vector invariant equations.
 C                       _____I  _____J
 C                 1  /     2       2   \
@@ -76,11 +65,11 @@ C                 2  \                 /
 C
        DO j=1-OLy,sNy+OLy-1
         DO i=1-OLx,sNx+OLx-1
-         KE(i,j) = 0.25 _d 0*(
-     &           ( uFld( i , j )*uFld( i , j )
-     &            +uFld(i+1, j )*uFld(i+1, j ) )
-     &         + ( vFld( i , j )*vFld( i , j )
-     &            +vFld( i ,j+1)*vFld( i ,j+1) )
+         KE(i,j) = 0.5 _d 0*(
+     &           ( uFld( i , j )
+     &            +uFld(i+1, j ) )
+     &         + ( vFld( i , j )
+     &            +vFld( i ,j+1) )
      &                  )
         ENDDO
        ENDDO
@@ -89,11 +78,11 @@ C
 C       As above but including the area
        DO j=1-OLy,sNy+OLy-1
         DO i=1-OLx,sNx+OLx-1
-         KE(i,j) = 0.25 _d 0*(
-     &           ( uFld(i, j )*uFld(i, j )*rAw(i ,j, bi,bj)
-     &            +uFld(i+1,j)*uFld(i+1,j)*rAw(i+1,j,bi,bj) )
-     &         + ( vFld(i, j )*vFld(i, j )*rAs(i ,j, bi,bj)
-     &            +vFld(i,j+1)*vFld(i,j+1)*rAs(i,j+1,bi,bj) )
+         KE(i,j) = 0.5 _d 0*(
+     &           ( uFld(i, j )*rAw(i ,j, bi,bj)
+     &            +uFld(i+1,j)*rAw(i+1,j,bi,bj) )
+     &         + ( vFld(i, j )*rAs(i ,j, bi,bj)
+     &            +vFld(i,j+1)*rAs(i,j+1,bi,bj) )
      &                  )*recip_rA(i,j,bi,bj)
         ENDDO
        ENDDO
@@ -103,11 +92,11 @@ C       As KEscheme=0 but including the lopping factors and should be used
 C       for the conservative form of the momentum equations.
        DO j=1-OLy,sNy+OLy-1
         DO i=1-OLx,sNx+OLx-1
-         KE(i,j) = 0.25 _d 0*(
-     &           ( uFld( i , j )*uFld( i , j )*_hFacW(i,j,k,bi,bj)
-     &            +uFld(i+1, j )*uFld(i+1, j )*_hFacW(i+1,j,k,bi,bj) )
-     &         + ( vFld( i , j )*vFld( i , j )*_hFacS(i,j,k,bi,bj)
-     &            +vFld( i ,j+1)*vFld( i ,j+1)*_hFacS(i,j+1,k,bi,bj) )
+         KE(i,j) = 0.5 _d 0*(
+     &           ( uFld( i , j )*_hFacW(i,j,k,bi,bj)
+     &            +uFld(i+1, j )*_hFacW(i+1,j,k,bi,bj) )
+     &         + ( vFld( i , j )*_hFacS(i,j,k,bi,bj)
+     &            +vFld( i ,j+1)*_hFacS(i,j+1,k,bi,bj) )
      &            )*_recip_hFacC(i,j,k,bi,bj)
         ENDDO
        ENDDO
@@ -116,17 +105,17 @@ C       for the conservative form of the momentum equations.
 C       As above but including the area
        DO j=1-OLy,sNy+OLy-1
         DO i=1-OLx,sNx+OLx-1
-         KE(i,j) = 0.25 _d 0*(
+         KE(i,j) = 0.5 _d 0*(
      &           (
-     &    uFld(i, j )*uFld(i, j )
+     &    uFld(i, j )
      &        *_hFacW(i ,j, k,bi,bj)*rAw(i ,j, bi,bj)
-     &   +uFld(i+1,j)*uFld(i+1,j)
+     &   +uFld(i+1,j)
      &        *_hFacW(i+1,j,k,bi,bj)*rAw(i+1,j,bi,bj)
      &           )
      &         + (
-     &    vFld(i, j )*vFld(i, j )
+     &    vFld(i, j )
      &        *_hFacS(i, j, k,bi,bj)*rAs(i ,j, bi,bj)
-     &   +vFld(i,j+1)*vFld(i,j+1)
+     &   +vFld(i,j+1)
      &        *_hFacS(i,j+1,k,bi,bj)*rAs(i,j+1,bi,bj)
      &           )      )*_recip_hFacC(i,j,k,bi,bj)
      &                   * recip_rA(i,j,bi,bj)
@@ -134,7 +123,7 @@ C       As above but including the area
        ENDDO
 
       ELSE
-       STOP 'S/R MOM_CALC_KE: We should never reach this point!'
+       STOP 'S/R MOM_INTERP_KE: We should never reach this point!'
       ENDIF
 
       RETURN

@@ -23,6 +23,9 @@ C     == Global data ==
 #include "PARAMS.h"
 #include "GRID.h"
 #include "DYNVARS.h"
+#ifdef ALLOW_EDIAG
+#include "DIAGNOSTICS_EVAR.h"
+#endif
 
 C     !INPUT/OUTPUT PARAMETERS:
 C     == Routine Arguments ==
@@ -60,6 +63,9 @@ c     _RL e5d(1-OLx:sNx+OLx,1-OLy:sNy+OLy,Nr)
       LOGICAL     DIAGNOSTICS_IS_ON
       EXTERNAL    DIAGNOSTICS_IS_ON
       _RL vf (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
+      _RL vf1 (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
+      _RL vf2 (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
+      _RL vf_d (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
 #endif
 CEOP
 
@@ -278,8 +284,10 @@ C--   Solve tri-diagonal system :
 #ifdef ALLOW_DIAGNOSTICS
 C--   Diagnostics of vertical viscous flux:
       IF ( useDiagnostics .AND. implicitViscosity ) THEN
-        diagName = 'VISrI_Um'
-        IF ( DIAGNOSTICS_IS_ON(diagName,myThid) ) THEN
+        IF ( DIAGNOSTICS_IS_ON('VISrI_Um',myThid) 
+     &     .OR. DIAGNOSTICS_IS_ON('Um_Disv ',myThid)
+     &     .OR. DIAGNOSTICS_IS_ON('UUm_Disv',myThid) 
+     &     .OR. DIAGNOSTICS_IS_ON('KEm_Disv',myThid) ) THEN
          DO k= 1,Nr
           IF ( k.EQ.1 ) THEN
 C-  Note: Needs to call DIAGNOSTICS_FILL at level k=1 even if array == 0
@@ -287,6 +295,7 @@ C         otherwise counter is not incremented !!
             DO j=1-OLy,sNy+OLy
              DO i=1-OLx,sNx+OLx
                vf(i,j) = 0. _d 0
+               vf1(i,j) = 0. _d 0
              ENDDO
             ENDDO
           ELSE
@@ -297,10 +306,31 @@ C         otherwise counter is not incremented !!
      &            * (gU(i,j,k,bi,bj) - gU(i,j,k-1,bi,bj))
      &            *_maskW(i,j,k,bi,bj)
      &            *_maskW(i,j,k-1,bi,bj)
+               vf_d(i,j) = (vf(i,j) - vf1(i,j))
+     &            *_recip_hFacW(i,j,k-1,bi,bj)/(rAw(i,j,bi,bj)*drF(k-1))
+               vf1(i,j) = vf(i,j)
+#ifdef ALLOW_EDIAG
+               u_dissv(i,j,k-1,bi,bj) = vf_d(i,j)
+#endif
              ENDDO
             ENDDO
+          CALL DIAGNOSTICS_FILL(vf_d,'Um_Disv ', k-1,1, 2,bi,bj, myThid)
           ENDIF
-          CALL DIAGNOSTICS_FILL(vf,diagName, k,1, 2,bi,bj, myThid)
+C     - lowest level case
+          IF ( k.EQ.Nr ) THEN
+            DO j=jMin,jMax
+              DO i=iMin,iMax
+                vf_d(i,j) =  - vf1(i,j)
+     &             *_recip_hFacW(i,j,k,bi,bj)/(rAw(i,j,bi,bj)*drF(k))
+#ifdef ALLOW_EDIAG
+                u_dissv(i,j,k,bi,bj) = vf_d(i,j)
+#endif
+              ENDDO
+            ENDDO
+            CALL DIAGNOSTICS_FILL(vf_d,'Um_Disv ',k,1, 2,bi,bj, myThid)
+          ENDIF
+          
+          CALL DIAGNOSTICS_FILL(vf,'VISrI_Um', k,1, 2,bi,bj, myThid)
          ENDDO
         ENDIF
       ENDIF

@@ -43,6 +43,9 @@ C     == Global variables ==
 #ifdef ALLOW_MOM_COMMON
 # include "MOM_VISC.h"
 #endif
+#ifdef ALLOW_EDIAG
+#include "DIAGNOSTICS_EVAR.h"
+#endif
 
 C     !INPUT/OUTPUT PARAMETERS:
 C     == Routine arguments ==
@@ -140,6 +143,16 @@ C---+----1----+----2----+----3----+----4----+----5----+----6----+----7-|--+----|
         diag_AB   = .FALSE.
       ENDIF
 #endif /* ALLOW_DIAGNOSTICS */
+
+#ifdef ALLOW_EDIAG
+      DO k=1,Nr
+        DO j=1-OLy,sNy+OLy
+         DO i=1-OLx,sNx+OLx
+           wvel0(i,j,k,bi,bj) = wvel(i,j,k,bi,bj)
+         ENDDO
+        ENDDO
+      ENDDO
+#endif
 
       biharmonicVisc = viscA4W.NE.zeroRL
      &           .OR. ( useVariableVisc .AND. useBiharmonicVisc )
@@ -644,6 +657,15 @@ c         IF ( k.EQ.2 ) CALL DIAGNOSTICS_COUNT('Wm_Advec',bi,bj,myThid)
         ENDIF
 #endif /* ALLOW_DIAGNOSTICS */
 
+#ifdef ALLOW_EDIAG
+          DO j=jMin,jMax
+           DO i=iMin,iMax
+             w_diss (i,j,k,bi,bj) = gwDiss(i,j)
+             w_advec(i,j,k,bi,bj) = gW(i,j,k,bi,bj)
+           ENDDO
+          ENDDO
+#endif
+
 C--   Dissipation term inside the Adams-Bashforth:
         IF ( momViscosity .AND. momDissip_In_AB) THEN
           DO j=jMin,jMax
@@ -674,6 +696,14 @@ C     and save gW_[n] into gwNm1 for the next time step.
           CALL DIAGNOSTICS_FILL(gw_AB,'AB_gW   ',k,1,2,bi,bj,myThid)
         ENDIF
 #endif /* ALLOW_DIAGNOSTICS */
+
+#ifdef ALLOW_EDIAG
+          DO j=jMin,jMax
+           DO i=iMin,iMax
+             w_ab (i,j,k,bi,bj) = gw_AB(i,j)
+           ENDDO
+          ENDDO
+#endif
 
 C--   Dissipation term outside the Adams-Bashforth:
         IF ( momViscosity .AND. .NOT.momDissip_In_AB ) THEN

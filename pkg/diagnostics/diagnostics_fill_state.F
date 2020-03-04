@@ -48,6 +48,7 @@ C     == Local variables ==
       _RL tmp1k(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
       _RL tmpU (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
       _RL tmpV (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
+      _RL tmpKE (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
       _RL tmpFac, uBarC, vBarC
 #ifdef ALLOW_FIZHI
       _RL dummy1, dummy2, dummy3, dummy4, kappa, getcon
@@ -353,6 +354,65 @@ C     (next fill for these diagnostics will NOT allow counter to be incremented)
         CALL DIAGNOSTICS_SCALE_FILL( vVel, tmpFac, 1,
      &                              'TOTVTEND',0,Nr,0,1,1,myThid )
 
+C NOTE_BD: cannot use power=2 option here because of the minus sign
+         DO bj = myByLo(myThid), myByHi(myThid)
+          DO bi = myBxLo(myThid), myBxHi(myThid)
+           DO k=1,Nr
+            DO j = 1,sNy
+             DO i = 1,sNx
+               tmpMk(i,j,k,bi,bj) = uVel(i,j,k,bi,bj)
+     &            *uVel(i,j,k,bi,bj)*0.5 _d 0
+             ENDDO
+            ENDDO
+           ENDDO
+          ENDDO
+         ENDDO
+        CALL DIAGNOSTICS_SCALE_FILL( tmpMk, tmpFac, 1,
+     &                              'UTOTUTEN',0,Nr,0,1,1,myThid )
+
+         DO bj = myByLo(myThid), myByHi(myThid)
+          DO bi = myBxLo(myThid), myBxHi(myThid)
+           DO k=1,Nr
+            DO j = 1,sNy
+             DO i = 1,sNx
+               tmpMk(i,j,k,bi,bj) = vVel(i,j,k,bi,bj)
+     &            *vVel(i,j,k,bi,bj)*0.5 _d 0
+             ENDDO
+            ENDDO
+           ENDDO
+          ENDDO
+         ENDDO
+        CALL DIAGNOSTICS_SCALE_FILL( tmpMk, tmpFac, 1,
+     &                              'VTOTVTEN',0,Nr,0,1,1,myThid )
+
+C NOTE_BD there *is* a better way to combine these diagnostics
+        IF ( DIAGNOSTICS_IS_ON('TOTKETEN',myThid) ) THEN
+        tmpFac = -86400. _d 0/deltaTMom
+         DO bj = myByLo(myThid), myByHi(myThid)
+          DO bi = myBxLo(myThid), myBxHi(myThid)
+           DO k=1,Nr
+             ! need to feel overlap
+             DO j=1-OLy,sNy+OLy
+               DO i=1-OLx,sNx+OLx
+               tmpU(i,j) = uVel(i,j,k,bi,bj)
+     &            *uVel(i,j,k,bi,bj)*0.5 _d 0
+               tmpV(i,j) = vVel(i,j,k,bi,bj)
+     &            *vVel(i,j,k,bi,bj)*0.5 _d 0
+             ENDDO
+            ENDDO
+            CALL MOM_INTERP_KE( bi,bj,k,2,tmpU,tmpV,tmpKE,myThid )
+            DO j = 1,sNy
+             DO i = 1,sNx
+               tmpMk(i,j,k,bi,bj) = tmpKE(i,j)
+             ENDDO
+            ENDDO
+           ENDDO ! en k loop
+          ENDDO
+         ENDDO
+        CALL DIAGNOSTICS_SCALE_FILL( tmpMk, tmpFac, 1,
+     &                              'TOTKETEN',0,Nr,0,1,1,myThid )
+        ENDIF
+
         IF ( DIAGNOSTICS_IS_ON('TOTTTEND',myThid) ) THEN
          DO bj = myByLo(myThid), myByHi(myThid)
           DO bi = myBxLo(myThid), myBxHi(myThid)
@@ -656,6 +716,46 @@ C     (previous fill for these diagnostics DID allow counter to be incremented)
      &                           'TOTVTEND',0,Nr,-1,bi,bj,myThid )
          ENDDO
         ENDDO
+
+C NOTE_BD: use power 2 option here
+        tmpFac = sqrt(0.5 _d 0*86400. _d 0/deltaTMom)
+        DO bj = myByLo(myThid), myByHi(myThid)
+         DO bi = myBxLo(myThid), myBxHi(myThid)
+          CALL DIAGNOSTICS_SCALE_FILL( uVel, tmpFac, 2,
+     &                           'UTOTUTEN',0,Nr,-1,bi,bj,myThid )
+          CALL DIAGNOSTICS_SCALE_FILL( vVel, tmpFac, 2,
+     &                           'VTOTVTEN',0,Nr,-1,bi,bj,myThid )
+         ENDDO
+        ENDDO
+
+
+C NOTE_BD there *is* a better way to combine these diagnostics
+        IF ( DIAGNOSTICS_IS_ON('TOTKETEN',myThid) ) THEN
+        tmpFac = 86400. _d 0/deltaTMom
+         DO bj = myByLo(myThid), myByHi(myThid)
+          DO bi = myBxLo(myThid), myBxHi(myThid)
+           DO k=1,Nr
+             ! need to feel overlap
+             DO j=1-OLy,sNy+OLy
+               DO i=1-OLx,sNx+OLx
+               tmpU(i,j) = uVel(i,j,k,bi,bj)
+     &            *uVel(i,j,k,bi,bj)*0.5 _d 0
+               tmpV(i,j) = vVel(i,j,k,bi,bj)
+     &            *vVel(i,j,k,bi,bj)*0.5 _d 0
+             ENDDO
+            ENDDO
+            CALL MOM_INTERP_KE( bi,bj,k,2,tmpU,tmpV,tmpKE,myThid )
+            DO j = 1,sNy
+             DO i = 1,sNx
+               tmpMk(i,j,k,bi,bj) = tmpKE(i,j)
+             ENDDO
+            ENDDO
+           ENDDO ! en k loop
+          ENDDO
+         ENDDO
+         CALL DIAGNOSTICS_SCALE_FILL( tmpMk, tmpFac, 1,
+     &                           'TOTKETEN',0,Nr,-1,1,1,myThid )
+         ENDIF
 
         IF ( DIAGNOSTICS_IS_ON('TOTTTEND',myThid) ) THEN
          DO bj = myByLo(myThid), myByHi(myThid)
